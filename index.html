@@ -468,129 +468,127 @@
   }
 
   function drawTarget(t, opts = {}) {
-    const selected = opts.selected || false;
-    const answered = state.answeredIds.has(t.id);
+  const selected = opts.selected || false;
+  const answered = state.answeredIds.has(t.id);
 
-    // Show a hotspot if:
-    // - editing, OR reveal is on, OR selected, OR it has been answered correctly
-    const show = state.mode === "edit" || state.showHotspots || selected || answered;
-    if (!show) return;
+  // '?' marker should show ONLY in quiz mode, only for unanswered,
+  // and NOT while reveal-all is active.
+  const drawQuestion = state.mode === "quiz" && !answered && !state.showHotspots;
 
-    // Only draw the outline (circle/rect) when editing or reveal is on (or selected).
-    const drawOutline = state.mode === "edit" || state.showHotspots || selected;
+  // Show a hotspot if:
+  // - editing, OR reveal is on, OR selected, OR answered correctly, OR it's an unanswered quiz marker ('?')
+  const show = state.mode === "edit" || state.showHotspots || selected || answered || drawQuestion;
+  if (!show) return;
 
-    // Draw label if:
-    // - editing, OR reveal is on, OR answered correctly
-    const drawLabel = state.mode === "edit" || state.showHotspots || answered;
+  // Only draw outline when editing/reveal (or selected)
+  const drawOutline = state.mode === "edit" || state.showHotspots || selected;
 
-    // Draw '?' marker if:
-    // - quiz mode AND not answered (regardless of reveal/hide)
-    const drawQuestion = state.mode === "quiz" && !answered;
+  // Draw label when editing/reveal OR answered (answered stays revealed)
+  const drawLabel = state.mode === "edit" || state.showHotspots || answered;
 
-    // Compute a center point for markers/labels
-    const cx = (t.shape === "circle") ? t.x : (t.x1 + t.x2) / 2;
-    const cy = (t.shape === "circle") ? t.y : (t.y1 + t.y2) / 2;
+  // Center point for markers
+  const cx = (t.shape === "circle") ? t.x : (t.x1 + t.x2) / 2;
+  const cy = (t.shape === "circle") ? t.y : (t.y1 + t.y2) / 2;
 
-    ctx.save();
+  ctx.save();
 
-    // ---- outline ----
-    if (drawOutline) {
-      ctx.globalAlpha = answered ? 0.75 : 0.9;
-      ctx.lineWidth = selected ? 4 : 2;
+  // ---- outline ----
+  if (drawOutline) {
+    ctx.globalAlpha = answered ? 0.75 : 0.9;
+    ctx.lineWidth = selected ? 4 : 2;
 
-      if (t.shape === "circle") {
-        ctx.beginPath();
-        ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
-        ctx.strokeStyle = selected
-          ? "rgba(110,160,255,0.95)"
-          : "rgba(255,255,255,0.75)";
-        ctx.stroke();
-
-        if (selected) {
-          ctx.fillStyle = "rgba(110,160,255,0.12)";
-          ctx.fill();
-        }
-      } else if (t.shape === "rect") {
-        const x1 = Math.min(t.x1, t.x2);
-        const y1 = Math.min(t.y1, t.y2);
-        const w = Math.abs(t.x2 - t.x1);
-        const h = Math.abs(t.y2 - t.y1);
-
-        ctx.strokeStyle = selected
-          ? "rgba(110,160,255,0.95)"
-          : "rgba(255,255,255,0.75)";
-        ctx.strokeRect(x1, y1, w, h);
-
-        if (selected) {
-          ctx.fillStyle = "rgba(110,160,255,0.12)";
-          ctx.fillRect(x1, y1, w, h);
-        }
-      }
-    }
-
-    // ---- answered label (stays revealed) ----
-    if (drawLabel) {
-      const label = (t.answer || "").trim().slice(0, 40);
-      if (label) {
-        ctx.globalAlpha = 0.92;
-        ctx.font = "14px system-ui";
-
-        let px, py;
-        if (t.shape === "circle") {
-          px = t.x + (t.r ?? 26) + 6;
-          py = t.y - 10;
-        } else {
-          px = Math.min(t.x1, t.x2) + 6;
-          py = Math.min(t.y1, t.y2) - 8;
-        }
-
-        const w = ctx.measureText(label).width;
-        ctx.fillStyle = "rgba(0,0,0,0.55)";
-        ctx.fillRect(px - 4, py - 16, w + 8, 20);
-
-        ctx.fillStyle = answered
-          ? "rgba(200,255,220,0.95)"
-          : "rgba(255,255,255,0.92)";
-        ctx.fillText(label, px, py);
-      }
-    }
-
-    // ---- '?' marker for unanswered (quiz mode) ----
-    if (drawQuestion) {
-      // Size scales a bit with the circle radius / rect size
-      const base = (t.shape === "circle")
-        ? clamp((t.r ?? 26) * 0.55, 10, 22)
-        : clamp(Math.min(Math.abs(t.x2 - t.x1), Math.abs(t.y2 - t.y1)) * 0.25, 10, 22);
-
-      const r = base + 6;
-
-      ctx.globalAlpha = 0.95;
-
-      // background bubble
+    if (t.shape === "circle") {
       ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0,0,0,0.55)";
-      ctx.fill();
-
-      // subtle ring
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(255,255,255,0.65)";
+      ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+      ctx.strokeStyle = selected
+        ? "rgba(110,160,255,0.95)"
+        : "rgba(255,255,255,0.75)";
       ctx.stroke();
 
-      // question mark
-      ctx.font = `bold ${Math.round(base + 10)}px system-ui`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "rgba(255,255,255,0.92)";
-      ctx.fillText("?", cx, cy + 1);
+      if (selected) {
+        ctx.fillStyle = "rgba(110,160,255,0.12)";
+        ctx.fill();
+      }
+    } else if (t.shape === "rect") {
+      const x1 = Math.min(t.x1, t.x2);
+      const y1 = Math.min(t.y1, t.y2);
+      const w = Math.abs(t.x2 - t.x1);
+      const h = Math.abs(t.y2 - t.y1);
 
-      // reset text settings (good hygiene)
-      ctx.textAlign = "start";
-      ctx.textBaseline = "alphabetic";
+      ctx.strokeStyle = selected
+        ? "rgba(110,160,255,0.95)"
+        : "rgba(255,255,255,0.75)";
+      ctx.strokeRect(x1, y1, w, h);
+
+      if (selected) {
+        ctx.fillStyle = "rgba(110,160,255,0.12)";
+        ctx.fillRect(x1, y1, w, h);
+      }
     }
-
-    ctx.restore();
   }
+
+  // ---- label (answered stays revealed; reveal-all shows all answers) ----
+  if (drawLabel) {
+    const label = (t.answer || "").trim().slice(0, 40);
+    if (label) {
+      ctx.globalAlpha = 0.92;
+      ctx.font = "14px system-ui";
+
+      let px, py;
+      if (t.shape === "circle") {
+        px = t.x + (t.r ?? 26) + 6;
+        py = t.y - 10;
+      } else {
+        px = Math.min(t.x1, t.x2) + 6;
+        py = Math.min(t.y1, t.y2) - 8;
+      }
+
+      const w = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillRect(px - 4, py - 16, w + 8, 20);
+
+      ctx.fillStyle = answered
+        ? "rgba(200,255,220,0.95)"
+        : "rgba(255,255,255,0.92)";
+      ctx.fillText(label, px, py);
+    }
+  }
+
+  // ---- '?' marker (quiz mode only, unanswered only, hidden during reveal-all) ----
+  if (drawQuestion) {
+    const base = (t.shape === "circle")
+      ? clamp((t.r ?? 26) * 0.55, 10, 22)
+      : clamp(Math.min(Math.abs(t.x2 - t.x1), Math.abs(t.y2 - t.y1)) * 0.25, 10, 22);
+
+    const r = base + 6;
+
+    ctx.globalAlpha = 0.95;
+
+    // bubble
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(0,0,0,0.55)";
+    ctx.fill();
+
+    // ring
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255,255,255,0.65)";
+    ctx.stroke();
+
+    // '?'
+    ctx.font = `bold ${Math.round(base + 10)}px system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.fillText("?", cx, cy + 1);
+
+    ctx.textAlign = "start";
+    ctx.textBaseline = "alphabetic";
+  }
+
+  ctx.restore();
+}
+
 
 
 
@@ -626,7 +624,7 @@
     }
   }
 
-  function askAnswerForTarget(t) {
+   function askAnswerForTarget(t) {
     const user = window.prompt("Type the name for this location/label:", "");
     if (user === null) return;
 
@@ -642,7 +640,7 @@
     if (ok) {
       state.stats.correct += 1;
       state.answeredIds.add(t.id);
-      alert("✅ Correct!");
+      // ✅ no alert — just let the map update
     } else {
       alert(`❌ Not quite.\n\nCorrect: ${t.answer}`);
     }
@@ -652,6 +650,7 @@
     renderTargetsList();
     render();
   }
+
 
   // ---------- events ----------
   toggleModeBtn.addEventListener("click", () => {
