@@ -1,0 +1,1 @@
+Guided interactable quizer for Cities/Towns/Villages and Highways/Internates/County Highways in Dane County. Editable and exportable JSON for hotspot markers, allowing for customizable placement. Hardcoded but adjustable map image 
