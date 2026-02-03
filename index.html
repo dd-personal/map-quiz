@@ -54,13 +54,12 @@
 
     <div class="card">
       <div style="font-weight:600;">Locked map image</div>
-      <div class="muted" id="imgStatus">Loading ./map.png …</div>
+      <div class="muted" id="imgStatus">Loading map…</div>
       <div class="row" style="margin-top:10px;">
         <button id="clearProgress">Clear Quiz Progress</button>
       </div>
       <small class="muted">
         Put <span class="kbd">map.png</span> next to this HTML file.
-        If the image fails to load when opening as a file, run a local server (see note below).
       </small>
     </div>
 
@@ -141,7 +140,6 @@
       <div id="targetsList" style="margin-top:10px;"></div>
       <small class="muted">Targets + progress are saved in your browser.</small>
     </div>
-
   </div>
 
   <div id="main">
@@ -152,11 +150,10 @@
 
 <script>
 (() => {
-  // ---- CONFIG: locked image path ----
-  // Put map.png next to this HTML file.
-  // If your filename has spaces, rename it. Example: "DC map.png" -> "map.png"
-  const MAP_URL = "./map.png";
-  const HOTSPOTS_URL = "./hotspots.json";
+  // ---- CONFIG ----
+  // Put map.png + hotspots.json next to this index.html
+  const MAP_URL = new URL("map.png", window.location.href).toString();
+  const HOTSPOTS_URL = new URL("hotspots.json", window.location.href).toString();
 
   // ---------- storage ----------
   const LS_KEYS = {
@@ -227,6 +224,40 @@
       .replace(/[^\w\s\-'.]/g, "");
   }
 
+  function normalizeTargets(arr) {
+    const input = Array.isArray(arr) ? arr : [];
+    return input.map(t => {
+      const shape = (t && t.shape === "rect") ? "rect" : "circle";
+      const base = {
+        id: (t && t.id) ? t.id : uid(),
+        answer: (t && typeof t.answer === "string") ? t.answer : "",
+        aliases: (t && Array.isArray(t.aliases)) ? t.aliases : [],
+        shape
+      };
+
+      if (shape === "circle") {
+        const x = Number(t?.x);
+        const y = Number(t?.y);
+        const r = Number(t?.r);
+        return {
+          ...base,
+          x: Number.isFinite(x) ? x : 0,
+          y: Number.isFinite(y) ? y : 0,
+          r: (Number.isFinite(r) && r > 0) ? r : 26
+        };
+      }
+
+      const x1 = Number(t?.x1), y1 = Number(t?.y1), x2 = Number(t?.x2), y2 = Number(t?.y2);
+      return {
+        ...base,
+        x1: Number.isFinite(x1) ? x1 : 0,
+        y1: Number.isFinite(y1) ? y1 : 0,
+        x2: Number.isFinite(x2) ? x2 : 0,
+        y2: Number.isFinite(y2) ? y2 : 0
+      };
+    });
+  }
+
   function getCanvasPoint(evt) {
     const rect = canvas.getBoundingClientRect();
     const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
@@ -236,9 +267,10 @@
 
   function hitTest(target, p) {
     if (target.shape === "circle") {
+      const r = (typeof target.r === "number" && Number.isFinite(target.r)) ? target.r : 26;
       const dx = p.x - target.x;
       const dy = p.y - target.y;
-      return (dx*dx + dy*dy) <= (target.r * target.r);
+      return (dx*dx + dy*dy) <= (r * r);
     }
     if (target.shape === "rect") {
       const x1 = Math.min(target.x1, target.x2);
@@ -270,7 +302,7 @@
   function loadFromStorage() {
     try {
       const t = localStorage.getItem(LS_KEYS.targets);
-      if (t) state.targets = JSON.parse(t);
+      if (t) state.targets = normalizeTargets(JSON.parse(t));
 
       const p = localStorage.getItem(LS_KEYS.progress);
       if (p) {
@@ -283,7 +315,6 @@
       console.warn("Storage load error:", e);
     }
   }
-
 
   function clearProgress() {
     state.answeredIds = new Set();
@@ -300,7 +331,7 @@
     state.imgLoadError = null;
     state.imgLoaded = false;
 
-    imgStatus.textContent = `Loading ${MAP_URL} …`;
+    imgStatus.textContent = "Loading map… please wait";
     render(); // show loading screen immediately
 
     const img = new Image();
@@ -314,7 +345,7 @@
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
 
-      imgStatus.innerHTML = `<span class="ok">Loaded:</span> ${MAP_URL} (${img.naturalWidth}×${img.naturalHeight})`;
+      imgStatus.innerHTML = `<span class="ok">Loaded:</span> map.png (${img.naturalWidth}×${img.naturalHeight})`;
       render();
       refreshUI();
     };
@@ -325,7 +356,7 @@
       state.imgLoading = false;
       state.imgLoadError = `Failed to load ${MAP_URL}`;
 
-      imgStatus.innerHTML = `<span class="bad">Failed to load:</span> ${MAP_URL}`;
+      imgStatus.innerHTML = `<span class="bad">Failed to load:</span> map.png`;
       render();
       refreshUI();
     };
@@ -333,38 +364,32 @@
     img.src = MAP_URL;
   }
 
-
   async function loadHotspotsFromRepo() {
     try {
-      // cache: "no-store" helps GitHub Pages not serve stale JSON
       const res = await fetch(HOTSPOTS_URL, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
       const arr = await res.json();
       if (Array.isArray(arr)) {
-        // minimal validation
-        state.targets = arr.map(t => ({
-          id: t.id || Math.random().toString(36).slice(2, 10),
-          answer: t.answer || "",
-          aliases: Array.isArray(t.aliases) ? t.aliases : [],
-          shape: t.shape || "circle",
-          x: t.x, y: t.y, r: t.r,
-          x1: t.x1, y1: t.y1, x2: t.x2, y2: t.y2
-        }));
-        // Optional: also stash locally for faster reloads/offline
-        saveTargets();
+        state.targets = normalizeTargets(arr);
+        saveTargets(); // optional local cache
         renderTargetsList();
         render();
       }
     } catch (e) {
       console.warn("Could not load hotspots.json; falling back to localStorage.", e);
-      // fallback: whatever is already in localStorage from loadFromStorage()
     }
   }
 
-
   function setMode(mode) {
     state.mode = mode;
+
+    // Edit mode should show outlines/labels for editing
     if (mode === "edit") state.showHotspots = true;
+
+    // Quiz mode should start hidden so '?' markers show
+    if (mode === "quiz") state.showHotspots = false;
+
     refreshUI();
     render();
   }
@@ -488,126 +513,126 @@
   }
 
   function drawTarget(t, opts = {}) {
-  const selected = opts.selected || false;
-  const answered = state.answeredIds.has(t.id);
+    const selected = opts.selected || false;
+    const answered = state.answeredIds.has(t.id);
 
-  // '?' marker should show ONLY in quiz mode, only for unanswered,
-  // and NOT while reveal-all is active.
-  const drawQuestion = state.mode === "quiz" && !answered && !state.showHotspots;
+    // '?' marker should show ONLY in quiz mode, only for unanswered,
+    // and NOT while reveal-all is active.
+    const drawQuestion = state.mode === "quiz" && !answered && !state.showHotspots;
 
-  // Show a hotspot if:
-  // - editing, OR reveal is on, OR selected, OR answered correctly, OR it's an unanswered quiz marker ('?')
-  const show = state.mode === "edit" || state.showHotspots || selected || answered || drawQuestion;
-  if (!show) return;
+    // Show a hotspot if:
+    // - editing, OR reveal is on, OR selected, OR answered correctly, OR it's an unanswered quiz marker ('?')
+    const show = state.mode === "edit" || state.showHotspots || selected || answered || drawQuestion;
+    if (!show) return;
 
-  // Only draw outline when editing/reveal (or selected)
-  const drawOutline = state.mode === "edit" || state.showHotspots || selected;
+    // Only draw outline when editing/reveal (or selected)
+    const drawOutline = state.mode === "edit" || state.showHotspots || selected;
 
-  // Draw label when editing/reveal OR answered (answered stays revealed)
-  const drawLabel = state.mode === "edit" || state.showHotspots || answered;
+    // Draw label when editing/reveal OR answered (answered stays revealed)
+    const drawLabel = state.mode === "edit" || state.showHotspots || answered;
 
-  // Center point for markers
-  const cx = (t.shape === "circle") ? t.x : (t.x1 + t.x2) / 2;
-  const cy = (t.shape === "circle") ? t.y : (t.y1 + t.y2) / 2;
+    // Center point for markers
+    const cx = (t.shape === "circle") ? t.x : (t.x1 + t.x2) / 2;
+    const cy = (t.shape === "circle") ? t.y : (t.y1 + t.y2) / 2;
 
-  ctx.save();
+    ctx.save();
 
-  // ---- outline ----
-  if (drawOutline) {
-    ctx.globalAlpha = answered ? 0.75 : 0.9;
-    ctx.lineWidth = selected ? 4 : 2;
+    // ---- outline ----
+    if (drawOutline) {
+      ctx.globalAlpha = answered ? 0.75 : 0.9;
+      ctx.lineWidth = selected ? 4 : 2;
 
-    if (t.shape === "circle") {
+      if (t.shape === "circle") {
+        ctx.beginPath();
+        ctx.arc(t.x, t.y, t.r ?? 26, 0, Math.PI * 2);
+        ctx.strokeStyle = selected
+          ? "rgba(110,160,255,0.95)"
+          : "rgba(255,255,255,0.75)";
+        ctx.stroke();
+
+        if (selected) {
+          ctx.fillStyle = "rgba(110,160,255,0.12)";
+          ctx.fill();
+        }
+      } else if (t.shape === "rect") {
+        const x1 = Math.min(t.x1, t.x2);
+        const y1 = Math.min(t.y1, t.y2);
+        const w = Math.abs(t.x2 - t.x1);
+        const h = Math.abs(t.y2 - t.y1);
+
+        ctx.strokeStyle = selected
+          ? "rgba(110,160,255,0.95)"
+          : "rgba(255,255,255,0.75)";
+        ctx.strokeRect(x1, y1, w, h);
+
+        if (selected) {
+          ctx.fillStyle = "rgba(110,160,255,0.12)";
+          ctx.fillRect(x1, y1, w, h);
+        }
+      }
+    }
+
+    // ---- label (answered stays revealed; reveal-all shows all answers) ----
+    if (drawLabel) {
+      const label = (t.answer || "").trim().slice(0, 40);
+      if (label) {
+        ctx.globalAlpha = 0.92;
+        ctx.font = "14px system-ui";
+
+        let px, py;
+        if (t.shape === "circle") {
+          px = t.x + (t.r ?? 26) + 6;
+          py = t.y - 10;
+        } else {
+          px = Math.min(t.x1, t.x2) + 6;
+          py = Math.min(t.y1, t.y2) - 8;
+        }
+
+        const w = ctx.measureText(label).width;
+        ctx.fillStyle = "rgba(0,0,0,0.55)";
+        ctx.fillRect(px - 4, py - 16, w + 8, 20);
+
+        ctx.fillStyle = answered
+          ? "rgba(200,255,220,0.95)"
+          : "rgba(255,255,255,0.92)";
+        ctx.fillText(label, px, py);
+      }
+    }
+
+    // ---- '?' marker (quiz mode only, unanswered only, hidden during reveal-all) ----
+    if (drawQuestion) {
+      const base = (t.shape === "circle")
+        ? clamp((t.r ?? 26) * 0.55, 10, 22)
+        : clamp(Math.min(Math.abs(t.x2 - t.x1), Math.abs(t.y2 - t.y1)) * 0.25, 10, 22);
+
+      const r = base + 6;
+
+      ctx.globalAlpha = 0.95;
+
+      // bubble
       ctx.beginPath();
-      ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
-      ctx.strokeStyle = selected
-        ? "rgba(110,160,255,0.95)"
-        : "rgba(255,255,255,0.75)";
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fill();
+
+      // ring
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255,255,255,0.65)";
       ctx.stroke();
 
-      if (selected) {
-        ctx.fillStyle = "rgba(110,160,255,0.12)";
-        ctx.fill();
-      }
-    } else if (t.shape === "rect") {
-      const x1 = Math.min(t.x1, t.x2);
-      const y1 = Math.min(t.y1, t.y2);
-      const w = Math.abs(t.x2 - t.x1);
-      const h = Math.abs(t.y2 - t.y1);
+      // '?'
+      ctx.font = `bold ${Math.round(base + 10)}px system-ui`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillStyle = "rgba(255,255,255,0.92)";
+      ctx.fillText("?", cx, cy + 1);
 
-      ctx.strokeStyle = selected
-        ? "rgba(110,160,255,0.95)"
-        : "rgba(255,255,255,0.75)";
-      ctx.strokeRect(x1, y1, w, h);
-
-      if (selected) {
-        ctx.fillStyle = "rgba(110,160,255,0.12)";
-        ctx.fillRect(x1, y1, w, h);
-      }
+      ctx.textAlign = "start";
+      ctx.textBaseline = "alphabetic";
     }
+
+    ctx.restore();
   }
-
-  // ---- label (answered stays revealed; reveal-all shows all answers) ----
-  if (drawLabel) {
-    const label = (t.answer || "").trim().slice(0, 40);
-    if (label) {
-      ctx.globalAlpha = 0.92;
-      ctx.font = "14px system-ui";
-
-      let px, py;
-      if (t.shape === "circle") {
-        px = t.x + (t.r ?? 26) + 6;
-        py = t.y - 10;
-      } else {
-        px = Math.min(t.x1, t.x2) + 6;
-        py = Math.min(t.y1, t.y2) - 8;
-      }
-
-      const w = ctx.measureText(label).width;
-      ctx.fillStyle = "rgba(0,0,0,0.55)";
-      ctx.fillRect(px - 4, py - 16, w + 8, 20);
-
-      ctx.fillStyle = answered
-        ? "rgba(200,255,220,0.95)"
-        : "rgba(255,255,255,0.92)";
-      ctx.fillText(label, px, py);
-    }
-  }
-
-  // ---- '?' marker (quiz mode only, unanswered only, hidden during reveal-all) ----
-  if (drawQuestion) {
-    const base = (t.shape === "circle")
-      ? clamp((t.r ?? 26) * 0.55, 10, 22)
-      : clamp(Math.min(Math.abs(t.x2 - t.x1), Math.abs(t.y2 - t.y1)) * 0.25, 10, 22);
-
-    const r = base + 6;
-
-    ctx.globalAlpha = 0.95;
-
-    // bubble
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = "rgba(0,0,0,0.55)";
-    ctx.fill();
-
-    // ring
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "rgba(255,255,255,0.65)";
-    ctx.stroke();
-
-    // '?'
-    ctx.font = `bold ${Math.round(base + 10)}px system-ui`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "rgba(255,255,255,0.92)";
-    ctx.fillText("?", cx, cy + 1);
-
-    ctx.textAlign = "start";
-    ctx.textBaseline = "alphabetic";
-  }
-
-  ctx.restore();
-}
 
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -626,7 +651,7 @@
       ctx.font = "14px system-ui";
       ctx.fillText("If this takes more than a few seconds, refresh the page.", 24, 70);
 
-      return; // IMPORTANT: don't draw hotspots/targets yet
+      return;
     }
 
     // Error screen
@@ -639,16 +664,17 @@
       ctx.font = "14px system-ui";
       ctx.fillText(state.imgLoadError || "Check that map.png exists next to index.html.", 24, 70);
 
-      return; // don't draw targets
+      return;
     }
 
-    // Draw map image
+    // Draw map
     ctx.drawImage(state.img, 0, 0);
 
-    // ---- keep the rest of your render() here (draw targets, rectDrag, etc.) ----
+    // Draw targets
     const sel = state.selectedId;
     for (const t of state.targets) drawTarget(t, { selected: t.id === sel });
 
+    // Draw rect drag preview
     if (state.rectDrag) {
       const { start, end } = state.rectDrag;
       const x = Math.min(start.x, end.x);
@@ -665,6 +691,33 @@
     }
   }
 
+  // ---- QUIZ answering (FIX: this was missing) ----
+  function askAnswerForTarget(t) {
+    const user = window.prompt("Type the name for this location/label:", "");
+    if (user === null) return;
+
+    const guess = normStr(user);
+    const correct = normStr(t.answer);
+    const aliases = (t.aliases || []).map(normStr);
+
+    state.stats.attempted += 1;
+    state.attemptsById[t.id] = (state.attemptsById[t.id] || 0) + 1;
+
+    const ok = guess === correct || aliases.includes(guess);
+
+    if (ok) {
+      state.stats.correct += 1;
+      state.answeredIds.add(t.id);
+      // silent success: no dialog
+    } else {
+      alert(`❌ Not quite.\n\nCorrect: ${t.answer}`);
+    }
+
+    saveProgress();
+    refreshUI();
+    renderTargetsList();
+    render();
+  }
 
   // ---------- events ----------
   toggleModeBtn.addEventListener("click", () => {
@@ -719,11 +772,9 @@
       const arr = JSON.parse(text);
       if (!Array.isArray(arr)) throw new Error("JSON must be an array of targets.");
       for (const t of arr) {
-        if (!t.id) t.id = uid();
         if (!t.answer) throw new Error("Each target must have an 'answer'.");
-        if (!t.shape) t.shape = "circle";
       }
-      state.targets = arr;
+      state.targets = normalizeTargets(arr);
       state.selectedId = null;
       saveTargets();
       renderTargetsList();
@@ -814,12 +865,16 @@
   });
 
   // ---------- init ----------
-  loadFromStorage();
-  refreshUI();
-  renderTargetsList();
-  render();
-  loadLockedImage();
-  loadHotspotsFromRepo();
+  async function init() {
+    loadFromStorage();
+    refreshUI();
+    renderTargetsList();
+    render();
+    loadLockedImage();
+    await loadHotspotsFromRepo();
+  }
+
+  init();
 })();
 </script>
 </body>
