@@ -56,7 +56,6 @@
       <div style="font-weight:600;">Locked map image</div>
       <div class="muted" id="imgStatus">Loading ./map.png …</div>
       <div class="row" style="margin-top:10px;">
-        <button id="clearAll" class="danger">Reset Everything</button>
         <button id="clearProgress">Clear Quiz Progress</button>
       </div>
       <small class="muted">
@@ -189,7 +188,6 @@
   const toggleModeBtn = document.getElementById("toggleMode");
   const editCard = document.getElementById("editCard");
 
-  const clearAllBtn = document.getElementById("clearAll");
   const clearProgressBtn = document.getElementById("clearProgress");
 
   const scoreLine = document.getElementById("scoreLine");
@@ -284,19 +282,6 @@
     }
   }
 
-  function resetEverything() {
-    if (!confirm("Reset targets + progress? (Image is fixed)")) return;
-    localStorage.removeItem(LS_KEYS.targets);
-    localStorage.removeItem(LS_KEYS.progress);
-    state.targets = [];
-    state.answeredIds = new Set();
-    state.attemptsById = {};
-    state.stats = { correct: 0, attempted: 0 };
-    state.selectedId = null;
-    render();
-    refreshUI();
-    renderTargetsList();
-  }
 
   function clearProgress() {
     state.answeredIds = new Set();
@@ -640,7 +625,6 @@ function drawTarget(t, opts = {}) {
     if (state.mode === "edit" && (e.key === "r" || e.key === "R")) toggleTool();
   });
 
-  clearAllBtn.addEventListener("click", resetEverything);
   clearProgressBtn.addEventListener("click", clearProgress);
 
   revealAllBtn.addEventListener("click", () => { state.showHotspots = true; render(); });
