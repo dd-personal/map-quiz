@@ -171,6 +171,8 @@
     showHotspots: false,
     img: null,
     imgLoaded: false,
+    imgLoading: true,
+    imgLoadError: null,
     targets: [],
     selectedId: null,
     stats: { correct: 0, attempted: 0 },
@@ -294,25 +296,43 @@
   }
 
   function loadLockedImage() {
+    state.imgLoading = true;
+    state.imgLoadError = null;
+    state.imgLoaded = false;
+
     imgStatus.textContent = `Loading ${MAP_URL} …`;
+    render(); // show loading screen immediately
+
     const img = new Image();
+
     img.onload = () => {
       state.img = img;
       state.imgLoaded = true;
+      state.imgLoading = false;
+      state.imgLoadError = null;
+
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
+
       imgStatus.innerHTML = `<span class="ok">Loaded:</span> ${MAP_URL} (${img.naturalWidth}×${img.naturalHeight})`;
       render();
       refreshUI();
     };
+
     img.onerror = () => {
+      state.img = null;
       state.imgLoaded = false;
+      state.imgLoading = false;
+      state.imgLoadError = `Failed to load ${MAP_URL}`;
+
       imgStatus.innerHTML = `<span class="bad">Failed to load:</span> ${MAP_URL}`;
       render();
       refreshUI();
     };
+
     img.src = MAP_URL;
   }
+
 
   async function loadHotspotsFromRepo() {
     try {
@@ -589,22 +609,43 @@
   ctx.restore();
 }
 
-
-
-
   function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    if (state.imgLoaded && state.img) {
-      ctx.drawImage(state.img, 0, 0);
-    } else {
-      ctx.fillStyle = "#0e1422";
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.fillStyle = "rgba(255,255,255,0.75)";
-      ctx.font = "18px system-ui";
-      ctx.fillText("Map image not loaded. Check MAP_URL and file placement.", 24, 40);
+    // Background
+    ctx.fillStyle = "#0e1422";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Loading screen
+    if (state.imgLoading) {
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "20px system-ui";
+      ctx.fillText("Loading map… please wait", 24, 44);
+
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.font = "14px system-ui";
+      ctx.fillText("If this takes more than a few seconds, refresh the page.", 24, 70);
+
+      return; // IMPORTANT: don't draw hotspots/targets yet
     }
 
+    // Error screen
+    if (!state.imgLoaded || !state.img) {
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.font = "18px system-ui";
+      ctx.fillText("Map failed to load.", 24, 44);
+
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.font = "14px system-ui";
+      ctx.fillText(state.imgLoadError || "Check that map.png exists next to index.html.", 24, 70);
+
+      return; // don't draw targets
+    }
+
+    // Draw map image
+    ctx.drawImage(state.img, 0, 0);
+
+    // ---- keep the rest of your render() here (draw targets, rectDrag, etc.) ----
     const sel = state.selectedId;
     for (const t of state.targets) drawTarget(t, { selected: t.id === sel });
 
@@ -622,33 +663,6 @@
       ctx.fillRect(x, y, w, h);
       ctx.restore();
     }
-  }
-
-   function askAnswerForTarget(t) {
-    const user = window.prompt("Type the name for this location/label:", "");
-    if (user === null) return;
-
-    const guess = normStr(user);
-    const correct = normStr(t.answer);
-    const aliases = (t.aliases || []).map(normStr);
-
-    state.stats.attempted += 1;
-    state.attemptsById[t.id] = (state.attemptsById[t.id] || 0) + 1;
-
-    const ok = guess === correct || aliases.includes(guess);
-
-    if (ok) {
-      state.stats.correct += 1;
-      state.answeredIds.add(t.id);
-      // ✅ no alert — just let the map update
-    } else {
-      alert(`❌ Not quite.\n\nCorrect: ${t.answer}`);
-    }
-
-    saveProgress();
-    refreshUI();
-    renderTargetsList();
-    render();
   }
 
 
