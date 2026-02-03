@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Map Label Quiz</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; height: 100vh; display: grid; grid-template-columns: 360px 1fr; background: #0b0d12; color: #e8ecf3; }
+    #sidebar { padding: 14px; border-right: 1px solid #222a3a; overflow: auto; }
+    #main { position: relative; display: grid; place-items: center; overflow: hidden; }
+    .card { background: #121826; border: 1px solid #222a3a; border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button, input, select {
+      background: #0e1422; color: #e8ecf3; border: 1px solid #2a3550; border-radius: 10px;
+      padding: 10px 10px; font-size: 14px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: #3b4b75; }
+    button.primary { background: #1b2a4a; border-color: #3b5aa0; }
+    button.danger { border-color: #7a2d2d; }
+    label { font-size: 12px; opacity: .85; }
+    small { opacity: .75; display: block; margin-top: 6px; line-height: 1.35; }
+    #canvasWrap { position: relative; max-width: 100%; max-height: 100%; }
+    canvas { max-width: 100%; max-height: 100%; border-radius: 16px; border: 1px solid #222a3a; background: #0e1422; }
+    .pill { padding: 6px 10px; border-radius: 999px; border: 1px solid #2a3550; background:#0e1422; font-size: 12px; }
+    .muted { opacity: .75; }
+    #targetsList { max-height: 260px; overflow: auto; border-radius: 12px; border:1px solid #222a3a; }
+    .targetItem {
+      display:flex; justify-content:space-between; gap: 8px; padding: 10px; border-bottom:1px solid #1c2436;
+      cursor: pointer;
+    }
+    .targetItem:last-child { border-bottom: none; }
+    .targetItem:hover { background: rgba(255,255,255,.03); }
+    .targetItem.selected { outline: 2px solid rgba(110,160,255,.6); outline-offset: -2px; }
+    .kbd { font-family: ui-monospace, Menlo, Consolas, monospace; border:1px solid #2a3550; border-bottom-width:2px; padding:2px 6px; border-radius: 6px; }
+    .ok { color: #a9f5c8; }
+    .bad { color: #ffb4b4; }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div class="pill" id="modePill">Mode: Quiz</div>
+        <button id="toggleMode" class="primary">Switch to Edit</button>
+      </div>
+      <small>
+        Quiz: click where a label was and type the name.<br/>
+        Edit: click to add hotspots (cities, highways, etc.).<br/>
+        Tip: press <span class="kbd">R</span> to toggle Circle/Rect in Edit mode.
+      </small>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:600;">Locked map image</div>
+      <div class="muted" id="imgStatus">Loading ./map.png …</div>
+      <div class="row" style="margin-top:10px;">
+        <button id="clearAll" class="danger">Reset Everything</button>
+        <button id="clearProgress">Clear Quiz Progress</button>
+      </div>
+      <small class="muted">
+        Put <span class="kbd">map.png</span> next to this HTML file.
+        If the image fails to load when opening as a file, run a local server (see note below).
+      </small>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;">
+        <div>
+          <div style="font-weight:600;">Score</div>
+          <div class="muted" id="scoreLine">0 correct / 0 attempted</div>
+        </div>
+        <div class="pill" id="accuracyPill">Accuracy: —</div>
+      </div>
+      <div style="margin-top:10px;" class="row">
+        <button id="revealAll">Reveal All</button>
+        <button id="hideAll">Hide All</button>
+      </div>
+      <small class="muted">“Reveal” shows hotspots so you can check placement.</small>
+    </div>
+
+    <div class="card" id="editCard" style="display:none;">
+      <div style="font-weight:600; margin-bottom:8px;">Edit tools</div>
+      <div class="row">
+        <div class="pill" id="toolPill">Tool: Circle</div>
+        <button id="toggleTool">Toggle Tool (R)</button>
+      </div>
+      <small class="muted">
+        Circle = click once (great for city dots + highway shields).<br/>
+        Rect = click-drag (great for longer labels).
+      </small>
+
+      <hr style="border:none;border-top:1px solid #222a3a;margin:12px 0;" />
+
+      <div style="font-weight:600; margin-bottom:6px;">Selected hotspot</div>
+      <div class="row">
+        <div style="flex:1; min-width: 220px;">
+          <label>Answer</label>
+          <input id="answerInput" placeholder="e.g., Cottage Grove" style="width:100%;" />
+        </div>
+      </div>
+      <div class="row" style="margin-top:8px;">
+        <div style="flex:1; min-width: 220px;">
+          <label>Aliases (comma-separated)</label>
+          <input id="aliasesInput" placeholder="e.g., Hwy 18, WI-18" style="width:100%;" />
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px;">
+        <div style="flex:1; min-width: 140px;">
+          <label>Circle radius (px)</label>
+          <input id="radiusInput" type="number" min="6" max="200" step="1" value="26" style="width:100%;" />
+        </div>
+        <div style="flex:1; min-width: 140px;">
+          <label>Shape</label>
+          <select id="shapeSelect" style="width:100%;">
+            <option value="circle">circle</option>
+            <option value="rect">rect</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="saveSelected" class="primary">Save Selected</button>
+        <button id="deleteSelected" class="danger">Delete</button>
+      </div>
+
+      <hr style="border:none;border-top:1px solid #222a3a;margin:12px 0;" />
+
+      <div class="row" style="justify-content:space-between;">
+        <div style="font-weight:600;">Hotspots</div>
+        <div class="row">
+          <button id="exportTargets">Export JSON</button>
+          <label style="display:inline-block;">
+            <input id="importTargets" type="file" accept="application/json" style="display:none;">
+            <button id="importBtn">Import JSON</button>
+          </label>
+        </div>
+      </div>
+
+      <div id="targetsList" style="margin-top:10px;"></div>
+      <small class="muted">Targets + progress are saved in your browser.</small>
+    </div>
+
+  </div>
+
+  <div id="main">
+    <div id="canvasWrap">
+      <canvas id="mapCanvas" width="900" height="600"></canvas>
+    </div>
+  </div>
+
+<script>
+(() => {
+  // ---- CONFIG: locked image path ----
+  // Put map.png next to this HTML file.
+  // If your filename has spaces, rename it. Example: "DC map.png" -> "map.png"
+  const MAP_URL = "./map.png";
+  const HOTSPOTS_URL = "./hotspots.json";
+
+  // ---------- storage ----------
+  const LS_KEYS = {
+    targets: "mapQuiz.targets.v1",
+    progress: "mapQuiz.progress.v1"
+  };
+
+  // ---------- state ----------
+  const state = {
+    mode: "quiz",          // "quiz" | "edit"
+    tool: "circle",        // "circle" | "rect"
+    showHotspots: false,
+    img: null,
+    imgLoaded: false,
+    targets: [],
+    selectedId: null,
+    stats: { correct: 0, attempted: 0 },
+    answeredIds: new Set(),
+    attemptsById: {},
+    rectDrag: null
+  };
+
+  // ---------- dom ----------
+  const canvas = document.getElementById("mapCanvas");
+  const ctx = canvas.getContext("2d");
+
+  const imgStatus = document.getElementById("imgStatus");
+  const modePill = document.getElementById("modePill");
+  const toggleModeBtn = document.getElementById("toggleMode");
+  const editCard = document.getElementById("editCard");
+
+  const clearAllBtn = document.getElementById("clearAll");
+  const clearProgressBtn = document.getElementById("clearProgress");
+
+  const scoreLine = document.getElementById("scoreLine");
+  const accuracyPill = document.getElementById("accuracyPill");
+
+  const revealAllBtn = document.getElementById("revealAll");
+  const hideAllBtn = document.getElementById("hideAll");
+
+  const toolPill = document.getElementById("toolPill");
+  const toggleToolBtn = document.getElementById("toggleTool");
+
+  const answerInput = document.getElementById("answerInput");
+  const aliasesInput = document.getElementById("aliasesInput");
+  const radiusInput = document.getElementById("radiusInput");
+  const shapeSelect = document.getElementById("shapeSelect");
+
+  const saveSelectedBtn = document.getElementById("saveSelected");
+  const deleteSelectedBtn = document.getElementById("deleteSelected");
+
+  const targetsList = document.getElementById("targetsList");
+  const exportTargetsBtn = document.getElementById("exportTargets");
+  const importTargetsFile = document.getElementById("importTargets");
+  const importBtn = document.getElementById("importBtn");
+
+  // ---------- helpers ----------
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+
+  function normStr(s) {
+    return (s || "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .replace(/[’']/g, "'")
+      .replace(/[^\w\s\-'.]/g, "");
+  }
+
+  function getCanvasPoint(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    return { x, y };
+  }
+
+  function hitTest(target, p) {
+    if (target.shape === "circle") {
+      const dx = p.x - target.x;
+      const dy = p.y - target.y;
+      return (dx*dx + dy*dy) <= (target.r * target.r);
+    }
+    if (target.shape === "rect") {
+      const x1 = Math.min(target.x1, target.x2);
+      const x2 = Math.max(target.x1, target.x2);
+      const y1 = Math.min(target.y1, target.y2);
+      const y2 = Math.max(target.y1, target.y2);
+      return p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2;
+    }
+    return false;
+  }
+
+  function getTargetById(id) {
+    return state.targets.find(t => t.id === id) || null;
+  }
+
+  function saveTargets() {
+    localStorage.setItem(LS_KEYS.targets, JSON.stringify(state.targets));
+  }
+
+  function saveProgress() {
+    const payload = {
+      stats: state.stats,
+      answeredIds: Array.from(state.answeredIds),
+      attemptsById: state.attemptsById
+    };
+    localStorage.setItem(LS_KEYS.progress, JSON.stringify(payload));
+  }
+
+  function loadFromStorage() {
+    try {
+      const t = localStorage.getItem(LS_KEYS.targets);
+      if (t) state.targets = JSON.parse(t);
+
+      const p = localStorage.getItem(LS_KEYS.progress);
+      if (p) {
+        const payload = JSON.parse(p);
+        state.stats = payload.stats || state.stats;
+        state.answeredIds = new Set(payload.answeredIds || []);
+        state.attemptsById = payload.attemptsById || {};
+      }
+    } catch (e) {
+      console.warn("Storage load error:", e);
+    }
+  }
+
+  function resetEverything() {
+    if (!confirm("Reset targets + progress? (Image is fixed)")) return;
+    localStorage.removeItem(LS_KEYS.targets);
+    localStorage.removeItem(LS_KEYS.progress);
+    state.targets = [];
+    state.answeredIds = new Set();
+    state.attemptsById = {};
+    state.stats = { correct: 0, attempted: 0 };
+    state.selectedId = null;
+    render();
+    refreshUI();
+    renderTargetsList();
+  }
+
+  function clearProgress() {
+    state.answeredIds = new Set();
+    state.attemptsById = {};
+    state.stats = { correct: 0, attempted: 0 };
+    saveProgress();
+    render();
+    refreshUI();
+    renderTargetsList();
+  }
+
+  function loadLockedImage() {
+    imgStatus.textContent = `Loading ${MAP_URL} …`;
+    const img = new Image();
+    img.onload = () => {
+      state.img = img;
+      state.imgLoaded = true;
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      imgStatus.innerHTML = `<span class="ok">Loaded:</span> ${MAP_URL} (${img.naturalWidth}×${img.naturalHeight})`;
+      render();
+      refreshUI();
+    };
+    img.onerror = () => {
+      state.imgLoaded = false;
+      imgStatus.innerHTML = `<span class="bad">Failed to load:</span> ${MAP_URL}`;
+      render();
+      refreshUI();
+    };
+    img.src = MAP_URL;
+  }
+
+  async function loadHotspotsFromRepo() {
+    try {
+      // cache: "no-store" helps GitHub Pages not serve stale JSON
+      const res = await fetch(HOTSPOTS_URL, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const arr = await res.json();
+      if (Array.isArray(arr)) {
+        // minimal validation
+        state.targets = arr.map(t => ({
+          id: t.id || Math.random().toString(36).slice(2, 10),
+          answer: t.answer || "",
+          aliases: Array.isArray(t.aliases) ? t.aliases : [],
+          shape: t.shape || "circle",
+          x: t.x, y: t.y, r: t.r,
+          x1: t.x1, y1: t.y1, x2: t.x2, y2: t.y2
+        }));
+        // Optional: also stash locally for faster reloads/offline
+        saveTargets();
+        renderTargetsList();
+        render();
+      }
+    } catch (e) {
+      console.warn("Could not load hotspots.json; falling back to localStorage.", e);
+      // fallback: whatever is already in localStorage from loadFromStorage()
+    }
+  }
+
+
+  function setMode(mode) {
+    state.mode = mode;
+    if (mode === "edit") state.showHotspots = true;
+    refreshUI();
+    render();
+  }
+
+  function toggleTool() {
+    state.tool = (state.tool === "circle") ? "rect" : "circle";
+    toolPill.textContent = "Tool: " + (state.tool === "circle" ? "Circle" : "Rect");
+  }
+
+  function escapeHtml(s) {
+    return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function selectTarget(id) {
+    state.selectedId = id;
+    const t = getTargetById(id);
+    if (!t) {
+      answerInput.value = "";
+      aliasesInput.value = "";
+      shapeSelect.value = "circle";
+      radiusInput.value = 26;
+      renderTargetsList();
+      render();
+      return;
+    }
+    answerInput.value = t.answer || "";
+    aliasesInput.value = (t.aliases || []).join(", ");
+    shapeSelect.value = t.shape || "circle";
+    if (t.shape === "circle") radiusInput.value = t.r ?? 26;
+    renderTargetsList();
+    render();
+  }
+
+  function upsertSelectedFromInputs() {
+    const t = getTargetById(state.selectedId);
+    if (!t) return;
+
+    const answer = (answerInput.value || "").trim();
+    if (!answer) { alert("Answer is required."); return; }
+
+    t.answer = answer;
+    t.aliases = (aliasesInput.value || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const shape = shapeSelect.value;
+    if (shape !== t.shape) {
+      if (shape === "circle") {
+        const cx = t.shape === "rect" ? (t.x1 + t.x2) / 2 : t.x;
+        const cy = t.shape === "rect" ? (t.y1 + t.y2) / 2 : t.y;
+        t.shape = "circle";
+        t.x = cx; t.y = cy;
+        t.r = clamp(parseInt(radiusInput.value || "26", 10), 6, 200);
+        delete t.x1; delete t.y1; delete t.x2; delete t.y2;
+      } else {
+        const cx = t.shape === "circle" ? t.x : (t.x1 + t.x2) / 2;
+        const cy = t.shape === "circle" ? t.y : (t.y1 + t.y2) / 2;
+        t.shape = "rect";
+        t.x1 = cx - 40; t.y1 = cy - 20;
+        t.x2 = cx + 40; t.y2 = cy + 20;
+        delete t.x; delete t.y; delete t.r;
+      }
+    } else if (t.shape === "circle") {
+      t.r = clamp(parseInt(radiusInput.value || "26", 10), 6, 200);
+    }
+
+    saveTargets();
+    renderTargetsList();
+    render();
+  }
+
+  function deleteSelected() {
+    const t = getTargetById(state.selectedId);
+    if (!t) return;
+    if (!confirm(`Delete hotspot "${t.answer || "(unnamed)"}"?`)) return;
+
+    state.targets = state.targets.filter(x => x.id !== t.id);
+    state.answeredIds.delete(t.id);
+    delete state.attemptsById[t.id];
+    state.selectedId = null;
+
+    saveTargets();
+    saveProgress();
+    renderTargetsList();
+    render();
+    refreshUI();
+  }
+
+  function renderTargetsList() {
+    targetsList.innerHTML = "";
+    if (!state.targets.length) {
+      targetsList.innerHTML = `<div style="padding:10px;" class="muted">No hotspots yet. Switch to Edit mode and click the map to add.</div>`;
+      return;
+    }
+    for (const t of state.targets) {
+      const div = document.createElement("div");
+      div.className = "targetItem" + (t.id === state.selectedId ? " selected" : "");
+      div.innerHTML = `
+        <div>
+          <div style="font-weight:600;">${escapeHtml(t.answer || "(unnamed)")}</div>
+          <div class="muted" style="font-size:12px;">${t.shape}${state.answeredIds.has(t.id) ? " • ✅" : ""}</div>
+        </div>
+        <div class="muted" style="font-size:12px;">${(t.aliases||[]).length ? "aliases" : ""}</div>
+      `;
+      div.onclick = () => selectTarget(t.id);
+      targetsList.appendChild(div);
+    }
+  }
+
+  function refreshUI() {
+    modePill.textContent = "Mode: " + (state.mode === "quiz" ? "Quiz" : "Edit");
+    toggleModeBtn.textContent = state.mode === "quiz" ? "Switch to Edit" : "Switch to Quiz";
+    editCard.style.display = state.mode === "edit" ? "block" : "none";
+
+    toolPill.textContent = "Tool: " + (state.tool === "circle" ? "Circle" : "Rect");
+
+    scoreLine.textContent = `${state.stats.correct} correct / ${state.stats.attempted} attempted`;
+    const acc = state.stats.attempted ? Math.round((state.stats.correct / state.stats.attempted) * 100) : null;
+    accuracyPill.textContent = "Accuracy: " + (acc === null ? "—" : `${acc}%`);
+  }
+
+function drawTarget(t, opts = {}) {
+  const selected = opts.selected || false;
+  const answered = state.answeredIds.has(t.id);
+
+  // Show a hotspot if:
+  // - editing, OR reveal is on, OR selected (edit), OR it has been answered correctly
+  const show = state.mode === "edit" || state.showHotspots || selected || answered;
+  if (!show) return;
+
+  // Only draw the outline (circle/rect) when editing or reveal is on (or selected).
+  // In quiz mode, answered items will show the LABEL but you won't see outlines unless you reveal.
+  const drawOutline = state.mode === "edit" || state.showHotspots || selected;
+
+  // Draw label if:
+  // - editing, OR reveal is on, OR answered correctly
+  const drawLabel = state.mode === "edit" || state.showHotspots || answered;
+
+  ctx.save();
+
+  // Slightly dim answered outlines when reveal/edit is on
+  ctx.globalAlpha = answered ? 0.75 : 0.9;
+  ctx.lineWidth = selected ? 4 : 2;
+
+  // ---- outline ----
+  if (drawOutline) {
+    if (t.shape === "circle") {
+      ctx.beginPath();
+      ctx.arc(t.x, t.y, t.r, 0, Math.PI * 2);
+      ctx.strokeStyle = selected
+        ? "rgba(110,160,255,0.95)"
+        : "rgba(255,255,255,0.75)";
+      ctx.stroke();
+
+      if (selected) {
+        ctx.fillStyle = "rgba(110,160,255,0.12)";
+        ctx.fill();
+      }
+    } else if (t.shape === "rect") {
+      const x1 = Math.min(t.x1, t.x2);
+      const y1 = Math.min(t.y1, t.y2);
+      const w = Math.abs(t.x2 - t.x1);
+      const h = Math.abs(t.y2 - t.y1);
+
+      ctx.strokeStyle = selected
+        ? "rgba(110,160,255,0.95)"
+        : "rgba(255,255,255,0.75)";
+      ctx.strokeRect(x1, y1, w, h);
+
+      if (selected) {
+        ctx.fillStyle = "rgba(110,160,255,0.12)";
+        ctx.fillRect(x1, y1, w, h);
+      }
+    }
+  }
+
+  // ---- label ----
+  if (drawLabel) {
+    const label = (t.answer || "").trim().slice(0, 40);
+    if (label) {
+      ctx.globalAlpha = 0.92;
+      ctx.font = "14px system-ui";
+
+      let px, py;
+      if (t.shape === "circle") {
+        px = t.x + (t.r ?? 26) + 6;
+        py = t.y - 10;
+      } else {
+        px = Math.min(t.x1, t.x2) + 6;
+        py = Math.min(t.y1, t.y2) - 8;
+      }
+
+      // background pill behind text
+      const w = ctx.measureText(label).width;
+      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillRect(px - 4, py - 16, w + 8, 20);
+
+      // text
+      ctx.fillStyle = answered
+        ? "rgba(200,255,220,0.95)" // subtle green tint for correct
+        : "rgba(255,255,255,0.92)";
+      ctx.fillText(label, px, py);
+    }
+  }
+
+  ctx.restore();
+}
+
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (state.imgLoaded && state.img) {
+      ctx.drawImage(state.img, 0, 0);
+    } else {
+      ctx.fillStyle = "#0e1422";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      ctx.fillStyle = "rgba(255,255,255,0.75)";
+      ctx.font = "18px system-ui";
+      ctx.fillText("Map image not loaded. Check MAP_URL and file placement.", 24, 40);
+    }
+
+    const sel = state.selectedId;
+    for (const t of state.targets) drawTarget(t, { selected: t.id === sel });
+
+    if (state.rectDrag) {
+      const { start, end } = state.rectDrag;
+      const x = Math.min(start.x, end.x);
+      const y = Math.min(start.y, end.y);
+      const w = Math.abs(end.x - start.x);
+      const h = Math.abs(end.y - start.y);
+      ctx.save();
+      ctx.strokeStyle = "rgba(110,160,255,0.95)";
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x, y, w, h);
+      ctx.fillStyle = "rgba(110,160,255,0.10)";
+      ctx.fillRect(x, y, w, h);
+      ctx.restore();
+    }
+  }
+
+  function askAnswerForTarget(t) {
+    const user = window.prompt("Type the name for this location/label:", "");
+    if (user === null) return;
+
+    const guess = normStr(user);
+    const correct = normStr(t.answer);
+    const aliases = (t.aliases || []).map(normStr);
+
+    state.stats.attempted += 1;
+    state.attemptsById[t.id] = (state.attemptsById[t.id] || 0) + 1;
+
+    const ok = guess === correct || aliases.includes(guess);
+
+    if (ok) {
+      state.stats.correct += 1;
+      state.answeredIds.add(t.id);
+      alert("✅ Correct!");
+    } else {
+      alert(`❌ Not quite.\n\nCorrect: ${t.answer}`);
+    }
+
+    saveProgress();
+    refreshUI();
+    renderTargetsList();
+    render();
+  }
+
+  // ---------- events ----------
+  toggleModeBtn.addEventListener("click", () => {
+    setMode(state.mode === "quiz" ? "edit" : "quiz");
+  });
+
+  toggleToolBtn.addEventListener("click", toggleTool);
+
+  document.addEventListener("keydown", (e) => {
+    if (state.mode === "edit" && (e.key === "r" || e.key === "R")) toggleTool();
+  });
+
+  clearAllBtn.addEventListener("click", resetEverything);
+  clearProgressBtn.addEventListener("click", clearProgress);
+
+  revealAllBtn.addEventListener("click", () => { state.showHotspots = true; render(); });
+  hideAllBtn.addEventListener("click", () => { state.showHotspots = false; render(); });
+
+  saveSelectedBtn.addEventListener("click", upsertSelectedFromInputs);
+  deleteSelectedBtn.addEventListener("click", deleteSelected);
+
+  exportTargetsBtn.addEventListener("click", () => {
+    const payload = JSON.stringify(state.targets, null, 2);
+    const blob = new Blob([payload], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "hotspots.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  importBtn.addEventListener("click", () => importTargetsFile.click());
+
+  importTargetsFile.addEventListener("change", async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const arr = JSON.parse(text);
+      if (!Array.isArray(arr)) throw new Error("JSON must be an array of targets.");
+      for (const t of arr) {
+        if (!t.id) t.id = uid();
+        if (!t.answer) throw new Error("Each target must have an 'answer'.");
+        if (!t.shape) t.shape = "circle";
+      }
+      state.targets = arr;
+      state.selectedId = null;
+      saveTargets();
+      renderTargetsList();
+      render();
+      alert("Imported targets.");
+    } catch (err) {
+      alert("Import failed: " + err.message);
+    } finally {
+      importTargetsFile.value = "";
+    }
+  });
+
+  canvas.addEventListener("mousedown", (evt) => {
+    if (!state.imgLoaded) return;
+    if (state.mode === "edit" && state.tool === "rect") {
+      const p = getCanvasPoint(evt);
+      state.rectDrag = { start: p, end: p };
+      render();
+    }
+  });
+
+  canvas.addEventListener("mousemove", (evt) => {
+    if (!state.rectDrag) return;
+    state.rectDrag.end = getCanvasPoint(evt);
+    render();
+  });
+
+  canvas.addEventListener("mouseup", (evt) => {
+    if (!state.imgLoaded) return;
+    const p = getCanvasPoint(evt);
+
+    if (state.mode === "edit") {
+      if (state.tool === "circle") {
+        const t = {
+          id: uid(),
+          answer: "",
+          aliases: [],
+          shape: "circle",
+          x: p.x,
+          y: p.y,
+          r: clamp(parseInt(radiusInput.value || "26", 10), 6, 200),
+        };
+        state.targets.push(t);
+        state.selectedId = t.id;
+        saveTargets();
+        renderTargetsList();
+        selectTarget(t.id);
+        render();
+        answerInput.focus();
+        return;
+      }
+
+      if (state.tool === "rect" && state.rectDrag) {
+        const start = state.rectDrag.start;
+        const end = state.rectDrag.end;
+        state.rectDrag = null;
+
+        if (Math.abs(end.x - start.x) < 8 || Math.abs(end.y - start.y) < 8) {
+          render();
+          return;
+        }
+
+        const t = {
+          id: uid(),
+          answer: "",
+          aliases: [],
+          shape: "rect",
+          x1: start.x, y1: start.y,
+          x2: end.x,   y2: end.y
+        };
+        state.targets.push(t);
+        state.selectedId = t.id;
+        saveTargets();
+        renderTargetsList();
+        selectTarget(t.id);
+        render();
+        answerInput.focus();
+        return;
+      }
+    }
+
+    if (state.mode === "quiz") {
+      const hit = state.targets.find(t => hitTest(t, p));
+      if (!hit) return;
+      if (state.answeredIds.has(hit.id)) return;
+      askAnswerForTarget(hit);
+    }
+  });
+
+  // ---------- init ----------
+  loadFromStorage();
+  refreshUI();
+  renderTargetsList();
+  render();
+  loadLockedImage();
+  loadHotspotsFromRepo();
+})();
+</script>
+</body>
+</html>
