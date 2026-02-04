@@ -6,9 +6,14 @@
   <title>Map Label Quiz</title>
   <style>
     :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
-    body { margin: 0; height: 100vh; display: grid; grid-template-columns: 360px 1fr; background: #0b0d12; color: #e8ecf3; }
-    #sidebar { padding: 14px; border-right: 1px solid #222a3a; overflow: auto; }
-    #main { position: relative; display: grid; place-items: center; overflow: hidden; }
+    body { margin: 0; height: 100vh; display: grid; --sidebar-w: 360px; grid-template-columns: var(--sidebar-w) 1fr; transition: grid-template-columns 180ms ease; background: #0b0d12; color: #e8ecf3; }
+    body.sidebar-collapsed { --sidebar-w: 0px; }
+    body.sidebar-collapsed #sidebar { padding: 0; border-right: none; overflow: hidden; }
+    body.sidebar-collapsed #sidebar > * { display: none; }
+
+    #sidebar { padding: 14px; border-right: 1px solid #222a3a; overflow: auto; min-width: 0; }
+    #main { position: relative; overflow: hidden; min-width: 0; }
+
     .card { background: #121826; border: 1px solid #222a3a; border-radius: 14px; padding: 12px; margin-bottom: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
     .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
     button, input, select {
@@ -19,10 +24,41 @@
     button:hover { border-color: #3b4b75; }
     button.primary { background: #1b2a4a; border-color: #3b5aa0; }
     button.danger { border-color: #7a2d2d; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
     label { font-size: 12px; opacity: .85; }
     small { opacity: .75; display: block; margin-top: 6px; line-height: 1.35; }
-    #canvasWrap { position: relative; max-width: 100%; max-height: 100%; }
-    canvas { max-width: 100%; max-height: 100%; border-radius: 16px; border: 1px solid #222a3a; background: #0e1422; }
+
+    #toggleSidebar { position: absolute; top: 12px; left: 12px; z-index: 60; padding: 10px 12px; border-radius: 12px; }
+    #canvasWrap { position: absolute; inset: 0; overflow: auto; padding: 12px; box-sizing: border-box; }
+    canvas { display: block; border-radius: 16px; border: 1px solid #222a3a; background: #0e1422; }
+
+    /* Route hover tooltip (shows ? or answer near cursor) */
+    #routeHoverTip{
+      position: fixed;
+      z-index: 90;
+      pointer-events: none;
+      left: 0; top: 0;
+      opacity: 0;
+      transform: translate(-50%, -110%);
+      transition: opacity 80ms ease, transform 80ms ease;
+      padding: 6px 10px;
+      border-radius: 12px;
+      border: 2px solid rgba(110,160,255,0.95);
+      background: rgba(0,0,0,0.72);
+      color: rgba(255,255,255,0.98);
+      font-size: 14px;
+      font-weight: 650;
+      letter-spacing: .2px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.35);
+      max-width: min(360px, 70vw);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    #routeHoverTip.answered{
+      color: rgba(251,188,4,0.98); /* deep yellow */
+    }
+
     .pill { padding: 6px 10px; border-radius: 999px; border: 1px solid #2a3550; background:#0e1422; font-size: 12px; }
     .muted { opacity: .75; }
     #targetsList { max-height: 260px; overflow: auto; border-radius: 12px; border:1px solid #222a3a; }
@@ -46,9 +82,9 @@
         <button id="toggleMode" class="primary">Switch to Edit</button>
       </div>
       <small>
-        Quiz: click where a label was and type the name.<br/>
-        Edit: click to add hotspots (cities, highways, etc.).<br/>
-        Tip: press <span class="kbd">R</span> to toggle Circle/Rect in Edit mode.
+        Quiz: hover to highlight a route, click to answer.<br/>
+        Edit: add City/Area/Route hotspots.<br/>
+        Tip: press <span class="kbd">R</span> to cycle tools in Edit mode.
       </small>
     </div>
 
@@ -59,7 +95,7 @@
         <button id="clearProgress">Clear Quiz Progress</button>
       </div>
       <small class="muted">
-        Put <span class="kbd">map.png</span> next to this HTML file.
+        Put <span class="kbd">map.png</span> and <span class="kbd">hotspots.json</span> next to this <span class="kbd">index.html</span>.
       </small>
     </div>
 
@@ -75,7 +111,7 @@
         <button id="revealAll">Reveal All</button>
         <button id="hideAll">Hide All</button>
       </div>
-      <small class="muted">“Reveal” shows hotspots so you can check placement.</small>
+      <small class="muted">Reveal shows answers/outlines. Unanswered “?” is hidden during Reveal.</small>
     </div>
 
     <div class="card" id="editCard" style="display:none;">
@@ -84,10 +120,17 @@
         <div class="pill" id="toolPill">Tool: Circle</div>
         <button id="toggleTool">Toggle Tool (R)</button>
       </div>
-      <small class="muted">
-        Circle = click once (great for city dots + highway shields).<br/>
-        Rect = click-drag (great for longer labels).
+      <small class="muted" id="toolHelp">
+        Circle = click once (cities + shields).<br/>
+        Rect = click-drag (label blocks).<br/>
+        Route = click along a road; double-click or Enter to finish.
       </small>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="finishRoute" class="primary" disabled>Finish Route</button>
+        <button id="cancelRoute" disabled>Cancel Route</button>
+      </div>
+      <small class="muted" id="routeStatus" style="margin-top:6px;"></small>
 
       <hr style="border:none;border-top:1px solid #222a3a;margin:12px 0;" />
 
@@ -95,7 +138,7 @@
       <div class="row">
         <div style="flex:1; min-width: 220px;">
           <label>Answer</label>
-          <input id="answerInput" placeholder="e.g., Cottage Grove" style="width:100%;" />
+          <input id="answerInput" placeholder="e.g., Highway 18" style="width:100%;" />
         </div>
       </div>
       <div class="row" style="margin-top:8px;">
@@ -115,6 +158,7 @@
           <select id="shapeSelect" style="width:100%;">
             <option value="circle">circle</option>
             <option value="rect">rect</option>
+            <option value="route">route</option>
           </select>
         </div>
       </div>
@@ -138,11 +182,13 @@
       </div>
 
       <div id="targetsList" style="margin-top:10px;"></div>
-      <small class="muted">Targets + progress are saved in your browser.</small>
+      <small class="muted">Targets + progress are saved in your browser. Shared hotspots load from hotspots.json.</small>
     </div>
   </div>
 
   <div id="main">
+    <button id="toggleSidebar" class="primary" title="Toggle panel">☰</button>
+    <div id="routeHoverTip" aria-hidden="true"></div>
     <div id="canvasWrap">
       <canvas id="mapCanvas" width="900" height="600"></canvas>
     </div>
@@ -151,9 +197,11 @@
 <script>
 (() => {
   // ---- CONFIG ----
-  // Put map.png + hotspots.json next to this index.html
   const MAP_URL = new URL("map.png", window.location.href).toString();
   const HOTSPOTS_URL = new URL("hotspots.json", window.location.href).toString();
+
+  // How close the cursor must be to a route to hover/highlight/click it (in pixels on the canvas)
+  const ROUTE_HIT_TOL = 14;
 
   // ---------- storage ----------
   const LS_KEYS = {
@@ -161,10 +209,21 @@
     progress: "mapQuiz.progress.v1"
   };
 
+  const UI_KEYS = {
+    sidebarCollapsed: "mapQuiz.sidebarCollapsed.v1"
+  };
+
+  // Zoom behavior (scroll wheel)
+  const WRAP_PAD = 12;
+  const ZOOM_MIN = 0.6;
+  const ZOOM_MAX = 6;
+  const ZOOM_STEP_IN = 1.12;
+  const ZOOM_STEP_OUT = 1 / ZOOM_STEP_IN;
+
   // ---------- state ----------
   const state = {
     mode: "quiz",          // "quiz" | "edit"
-    tool: "circle",        // "circle" | "rect"
+    tool: "circle",        // "circle" | "rect" | "route"
     showHotspots: false,
     img: null,
     imgLoaded: false,
@@ -172,15 +231,23 @@
     imgLoadError: null,
     targets: [],
     selectedId: null,
+    hoverId: null,         // hovered target id (quiz)
     stats: { correct: 0, attempted: 0 },
     answeredIds: new Set(),
     attemptsById: {},
-    rectDrag: null
+    rectDrag: null,
+    routeDraft: null,      // { points: [{x,y},...]} while drawing a route in edit mode
+    zoom: 1,               // scroll-wheel zoom multiplier
+    fitScale: 1            // auto-fit scale based on viewport
   };
 
   // ---------- dom ----------
   const canvas = document.getElementById("mapCanvas");
   const ctx = canvas.getContext("2d");
+
+  const canvasWrap = document.getElementById("canvasWrap");
+  const toggleSidebarBtn = document.getElementById("toggleSidebar");
+  const routeHoverTip = document.getElementById("routeHoverTip");
 
   const imgStatus = document.getElementById("imgStatus");
   const modePill = document.getElementById("modePill");
@@ -197,6 +264,9 @@
 
   const toolPill = document.getElementById("toolPill");
   const toggleToolBtn = document.getElementById("toggleTool");
+  const routeStatus = document.getElementById("routeStatus");
+  const finishRouteBtn = document.getElementById("finishRoute");
+  const cancelRouteBtn = document.getElementById("cancelRoute");
 
   const answerInput = document.getElementById("answerInput");
   const aliasesInput = document.getElementById("aliasesInput");
@@ -215,6 +285,84 @@
   const uid = () => Math.random().toString(36).slice(2, 10);
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
+  function showRouteHoverTip(target, clientX, clientY) {
+    if (!routeHoverTip || !target) return;
+    const answered = state.answeredIds.has(target.id);
+    const label = answered ? (target.answer || "") : "?";
+    if (!label) return;
+
+    routeHoverTip.textContent = label;
+    routeHoverTip.classList.toggle("answered", answered);
+
+    routeHoverTip.style.left = clientX + "px";
+    routeHoverTip.style.top = clientY + "px";
+    routeHoverTip.style.opacity = "1";
+    routeHoverTip.style.transform = "translate(-50%, -130%)";
+  }
+
+  function hideRouteHoverTip() {
+    if (!routeHoverTip) return;
+    routeHoverTip.style.opacity = "0";
+    routeHoverTip.style.transform = "translate(-50%, -110%)";
+  }
+
+  // ---------- zoom + sidebar UI helpers ----------
+  function computeFitScale() {
+    if (!state.imgLoaded || !state.img) return 1;
+    const availW = Math.max(50, canvasWrap.clientWidth - WRAP_PAD * 2);
+    const availH = Math.max(50, canvasWrap.clientHeight - WRAP_PAD * 2);
+    const s = Math.min(availW / state.img.naturalWidth, availH / state.img.naturalHeight);
+    // don't auto-scale up; user can zoom in with wheel
+    return Math.min(1, s);
+  }
+
+  function applyCanvasDisplaySize() {
+    if (!state.imgLoaded || !state.img) return;
+    state.fitScale = computeFitScale();
+    const scale = state.fitScale * state.zoom;
+
+    const w = Math.round(state.img.naturalWidth * scale);
+    const h = Math.round(state.img.naturalHeight * scale);
+
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+  }
+
+  function setZoom(newZoom, anchorClientX, anchorClientY) {
+    if (!state.imgLoaded || !state.img) return;
+
+    const oldZoom = state.zoom;
+    newZoom = clamp(newZoom, ZOOM_MIN, ZOOM_MAX);
+    if (Math.abs(newZoom - oldZoom) < 0.0001) return;
+
+    const oldScale = (state.fitScale * oldZoom) || 1;
+
+    const rect = canvasWrap.getBoundingClientRect();
+    const mx = (anchorClientX - rect.left) - WRAP_PAD;
+    const my = (anchorClientY - rect.top) - WRAP_PAD;
+
+    const worldX = (canvasWrap.scrollLeft + mx) / oldScale;
+    const worldY = (canvasWrap.scrollTop + my) / oldScale;
+
+    state.zoom = newZoom;
+    applyCanvasDisplaySize();
+
+    const newScale = (state.fitScale * newZoom) || 1;
+    canvasWrap.scrollLeft = worldX * newScale - mx;
+    canvasWrap.scrollTop = worldY * newScale - my;
+
+    render();
+  }
+
+  function setSidebarCollapsed(collapsed) {
+    document.body.classList.toggle("sidebar-collapsed", collapsed);
+    localStorage.setItem(UI_KEYS.sidebarCollapsed, collapsed ? "1" : "0");
+    if (toggleSidebarBtn) toggleSidebarBtn.textContent = collapsed ? "»" : "☰";
+
+    applyCanvasDisplaySize();
+    render();
+  }
+
   function normStr(s) {
     return (s || "")
       .trim()
@@ -224,10 +372,43 @@
       .replace(/[^\w\s\-'.]/g, "");
   }
 
+  function escapeHtml(s) {
+    return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function getCanvasPoint(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
+    const y = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    return { x, y };
+  }
+
+  function pointSegmentDistance(p, a, b) {
+    const vx = b.x - a.x, vy = b.y - a.y;
+    const wx = p.x - a.x, wy = p.y - a.y;
+    const c1 = wx*vx + wy*vy;
+    if (c1 <= 0) return Math.hypot(p.x - a.x, p.y - a.y);
+    const c2 = vx*vx + vy*vy;
+    if (c2 <= c1) return Math.hypot(p.x - b.x, p.y - b.y);
+    const t = c1 / c2;
+    const projx = a.x + t*vx, projy = a.y + t*vy;
+    return Math.hypot(p.x - projx, p.y - projy);
+  }
+
+  function routeMinDistance(points, p) {
+    if (!Array.isArray(points) || points.length < 2) return Infinity;
+    let best = Infinity;
+    for (let i = 0; i < points.length - 1; i++) {
+      const d = pointSegmentDistance(p, points[i], points[i+1]);
+      if (d < best) best = d;
+    }
+    return best;
+  }
+
   function normalizeTargets(arr) {
     const input = Array.isArray(arr) ? arr : [];
     return input.map(t => {
-      const shape = (t && t.shape === "rect") ? "rect" : "circle";
+      const shape = (t && (t.shape === "rect" || t.shape === "route")) ? t.shape : "circle";
       const base = {
         id: (t && t.id) ? t.id : uid(),
         answer: (t && typeof t.answer === "string") ? t.answer : "",
@@ -247,39 +428,24 @@
         };
       }
 
-      const x1 = Number(t?.x1), y1 = Number(t?.y1), x2 = Number(t?.x2), y2 = Number(t?.y2);
-      return {
-        ...base,
-        x1: Number.isFinite(x1) ? x1 : 0,
-        y1: Number.isFinite(y1) ? y1 : 0,
-        x2: Number.isFinite(x2) ? x2 : 0,
-        y2: Number.isFinite(y2) ? y2 : 0
-      };
+      if (shape === "rect") {
+        const x1 = Number(t?.x1), y1 = Number(t?.y1), x2 = Number(t?.x2), y2 = Number(t?.y2);
+        return {
+          ...base,
+          x1: Number.isFinite(x1) ? x1 : 0,
+          y1: Number.isFinite(y1) ? y1 : 0,
+          x2: Number.isFinite(x2) ? x2 : 0,
+          y2: Number.isFinite(y2) ? y2 : 0
+        };
+      }
+
+      // route
+      const pts = Array.isArray(t?.points) ? t.points : [];
+      const points = pts
+        .filter(p => Number.isFinite(Number(p?.x)) && Number.isFinite(Number(p?.y)))
+        .map(p => ({x: Number(p.x), y: Number(p.y)}));
+      return { ...base, points };
     });
-  }
-
-  function getCanvasPoint(evt) {
-    const rect = canvas.getBoundingClientRect();
-    const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (evt.clientY - rect.top) * (canvas.height / rect.height);
-    return { x, y };
-  }
-
-  function hitTest(target, p) {
-    if (target.shape === "circle") {
-      const r = (typeof target.r === "number" && Number.isFinite(target.r)) ? target.r : 26;
-      const dx = p.x - target.x;
-      const dy = p.y - target.y;
-      return (dx*dx + dy*dy) <= (r * r);
-    }
-    if (target.shape === "rect") {
-      const x1 = Math.min(target.x1, target.x2);
-      const x2 = Math.max(target.x1, target.x2);
-      const y1 = Math.min(target.y1, target.y2);
-      const y2 = Math.max(target.y1, target.y2);
-      return p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2;
-    }
-    return false;
   }
 
   function getTargetById(id) {
@@ -316,23 +482,13 @@
     }
   }
 
-  function clearProgress() {
-    state.answeredIds = new Set();
-    state.attemptsById = {};
-    state.stats = { correct: 0, attempted: 0 };
-    saveProgress();
-    render();
-    refreshUI();
-    renderTargetsList();
-  }
-
   function loadLockedImage() {
     state.imgLoading = true;
     state.imgLoadError = null;
     state.imgLoaded = false;
 
     imgStatus.textContent = "Loading map… please wait";
-    render(); // show loading screen immediately
+    render();
 
     const img = new Image();
 
@@ -344,6 +500,12 @@
 
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
+
+      // Fit-to-view on load, then allow scroll-wheel zoom
+      state.zoom = 1;
+      applyCanvasDisplaySize();
+      canvasWrap.scrollLeft = 0;
+      canvasWrap.scrollTop = 0;
 
       imgStatus.innerHTML = `<span class="ok">Loaded:</span> map.png (${img.naturalWidth}×${img.naturalHeight})`;
       render();
@@ -383,24 +545,73 @@
 
   function setMode(mode) {
     state.mode = mode;
+    hideRouteHoverTip();
 
-    // Edit mode should show outlines/labels for editing
-    if (mode === "edit") state.showHotspots = true;
-
-    // Quiz mode should start hidden so '?' markers show
-    if (mode === "quiz") state.showHotspots = false;
+    if (mode === "edit") {
+      state.showHotspots = true;
+      state.hoverId = null;
+    }
+    if (mode === "quiz") {
+      state.showHotspots = false;
+      state.routeDraft = null; // don’t leave a draft hanging
+      state.hoverId = null;
+    }
 
     refreshUI();
     render();
   }
 
   function toggleTool() {
-    state.tool = (state.tool === "circle") ? "rect" : "circle";
-    toolPill.textContent = "Tool: " + (state.tool === "circle" ? "Circle" : "Rect");
+    const order = ["circle", "rect", "route"];
+    const idx = order.indexOf(state.tool);
+    state.tool = order[(idx + 1) % order.length];
+    refreshUI();
+    render();
   }
 
-  function escapeHtml(s) {
-    return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function hitTest(target, p) {
+    if (target.shape === "circle") {
+      const r = (typeof target.r === "number" && Number.isFinite(target.r)) ? target.r : 26;
+      const dx = p.x - target.x;
+      const dy = p.y - target.y;
+      return (dx*dx + dy*dy) <= (r * r);
+    }
+    if (target.shape === "rect") {
+      const x1 = Math.min(target.x1, target.x2);
+      const x2 = Math.max(target.x1, target.x2);
+      const y1 = Math.min(target.y1, target.y2);
+      const y2 = Math.max(target.y1, target.y2);
+      return p.x >= x1 && p.x <= x2 && p.y >= y1 && p.y <= y2;
+    }
+    if (target.shape === "route") {
+      const d = routeMinDistance(target.points, p);
+      return d <= ROUTE_HIT_TOL;
+    }
+    return false;
+  }
+
+  function findHoverTarget(p) {
+    // Prefer nearest route/shape within tolerance
+    let bestId = null;
+    let bestDist = Infinity;
+
+    for (const t of state.targets) {
+      if (t.shape === "route") {
+        const d = routeMinDistance(t.points, p);
+        if (d <= ROUTE_HIT_TOL && d < bestDist) {
+          bestDist = d;
+          bestId = t.id;
+        }
+      } else {
+        // circle/rect: only hover if hit (inside)
+        if (hitTest(t, p)) {
+          bestId = t.id;
+          bestDist = 0;
+          break;
+        }
+      }
+    }
+    return bestId;
   }
 
   function selectTarget(id) {
@@ -411,14 +622,28 @@
       aliasesInput.value = "";
       shapeSelect.value = "circle";
       radiusInput.value = 26;
+      radiusInput.disabled = false;
+      shapeSelect.disabled = false;
       renderTargetsList();
       render();
       return;
     }
+
     answerInput.value = t.answer || "";
     aliasesInput.value = (t.aliases || []).join(", ");
+
     shapeSelect.value = t.shape || "circle";
-    if (t.shape === "circle") radiusInput.value = t.r ?? 26;
+
+    if (t.shape === "circle") {
+      radiusInput.value = t.r ?? 26;
+      radiusInput.disabled = false;
+    } else {
+      radiusInput.disabled = true;
+    }
+
+    // We allow shapeSelect to show route, but prevent cross-conversion involving routes.
+    shapeSelect.disabled = false;
+
     renderTargetsList();
     render();
   }
@@ -436,18 +661,27 @@
       .map(s => s.trim())
       .filter(Boolean);
 
-    const shape = shapeSelect.value;
-    if (shape !== t.shape) {
-      if (shape === "circle") {
-        const cx = t.shape === "rect" ? (t.x1 + t.x2) / 2 : t.x;
-        const cy = t.shape === "rect" ? (t.y1 + t.y2) / 2 : t.y;
+    const desiredShape = shapeSelect.value;
+
+    // Prevent converting to/from route (keeps your route geometry intact).
+    if ((t.shape === "route" && desiredShape !== "route") || (t.shape !== "route" && desiredShape === "route")) {
+      alert("To change between route and non-route shapes, delete and redraw the hotspot.");
+      shapeSelect.value = t.shape;
+      return;
+    }
+
+    // Non-route conversions only (circle <-> rect)
+    if (desiredShape !== t.shape && t.shape !== "route") {
+      if (desiredShape === "circle") {
+        const cx = (t.shape === "rect") ? (t.x1 + t.x2) / 2 : t.x;
+        const cy = (t.shape === "rect") ? (t.y1 + t.y2) / 2 : t.y;
         t.shape = "circle";
         t.x = cx; t.y = cy;
         t.r = clamp(parseInt(radiusInput.value || "26", 10), 6, 200);
         delete t.x1; delete t.y1; delete t.x2; delete t.y2;
-      } else {
-        const cx = t.shape === "circle" ? t.x : (t.x1 + t.x2) / 2;
-        const cy = t.shape === "circle" ? t.y : (t.y1 + t.y2) / 2;
+      } else if (desiredShape === "rect") {
+        const cx = (t.shape === "circle") ? t.x : (t.x1 + t.x2) / 2;
+        const cy = (t.shape === "circle") ? t.y : (t.y1 + t.y2) / 2;
         t.shape = "rect";
         t.x1 = cx - 40; t.y1 = cy - 20;
         t.x2 = cx + 40; t.y2 = cy + 20;
@@ -482,7 +716,7 @@
   function renderTargetsList() {
     targetsList.innerHTML = "";
     if (!state.targets.length) {
-      targetsList.innerHTML = `<div style="padding:10px;" class="muted">No hotspots yet. Switch to Edit mode and click the map to add.</div>`;
+      targetsList.innerHTML = `<div style="padding:10px;" class="muted">No hotspots yet. Switch to Edit mode and add some.</div>`;
       return;
     }
     for (const t of state.targets) {
@@ -505,130 +739,227 @@
     toggleModeBtn.textContent = state.mode === "quiz" ? "Switch to Edit" : "Switch to Quiz";
     editCard.style.display = state.mode === "edit" ? "block" : "none";
 
-    toolPill.textContent = "Tool: " + (state.tool === "circle" ? "Circle" : "Rect");
+    const toolName = state.tool === "circle" ? "Circle" : (state.tool === "rect" ? "Rect" : "Route");
+    toolPill.textContent = "Tool: " + toolName;
 
     scoreLine.textContent = `${state.stats.correct} correct / ${state.stats.attempted} attempted`;
     const acc = state.stats.attempted ? Math.round((state.stats.correct / state.stats.attempted) * 100) : null;
     accuracyPill.textContent = "Accuracy: " + (acc === null ? "—" : `${acc}%`);
+
+    const draftPts = state.routeDraft?.points?.length || 0;
+    const drawingRoute = state.mode === "edit" && state.tool === "route";
+    if (drawingRoute && draftPts > 0) {
+      routeStatus.textContent = `Route in progress: ${draftPts} point${draftPts===1?"":"s"} (double-click or Enter to finish)`;
+    } else if (drawingRoute) {
+      routeStatus.textContent = `Route tool: click along the road to place points.`;
+    } else {
+      routeStatus.textContent = "";
+    }
+
+    finishRouteBtn.disabled = !(state.mode === "edit" && state.tool === "route" && draftPts >= 2);
+    cancelRouteBtn.disabled = !(state.mode === "edit" && state.tool === "route" && draftPts >= 1);
+
+    // If selected is route, radius doesn’t apply
+    const sel = getTargetById(state.selectedId);
+    if (sel && sel.shape !== "circle") radiusInput.disabled = true;
+    if (sel && sel.shape === "circle") radiusInput.disabled = false;
+  }
+
+  function drawRoute(points, style) {
+    if (!Array.isArray(points) || points.length < 2) return;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(points[0].x, points[0].y);
+    for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+    ctx.strokeStyle = style.strokeStyle;
+    ctx.lineWidth = style.lineWidth;
+    ctx.globalAlpha = style.alpha ?? 1;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawQuestionBubble(x, y, sizePx, highlight = false) {
+    const base = clamp(sizePx, 10, 24);
+    const r = base + (highlight ? 8 : 6);
+
+    ctx.save();
+    ctx.globalAlpha = 0.95;
+
+    if (highlight) {
+      ctx.shadowColor = "rgba(110,160,255,0.95)";
+      ctx.shadowBlur = 10;
+    }
+
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fillStyle = highlight ? "rgba(0,0,0,0.70)" : "rgba(0,0,0,0.55)";
+    ctx.fill();
+
+    ctx.lineWidth = highlight ? 3 : 2;
+    ctx.strokeStyle = highlight ? "rgba(110,160,255,0.95)" : "rgba(255,255,255,0.65)";
+    ctx.stroke();
+
+    // text
+    ctx.shadowBlur = highlight ? 8 : 0;
+    ctx.shadowColor = highlight ? "rgba(110,160,255,0.95)" : "transparent";
+    ctx.font = `bold ${Math.round(base + 10)}px system-ui`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = highlight ? "rgba(255,255,255,0.98)" : "rgba(255,255,255,0.92)";
+    ctx.fillText("?", x, y + 1);
+
+    ctx.restore();
+  }
+
+  function drawLabelAt(x, y, label, answered, highlight = false) {
+    const text = (label || "").trim().slice(0, 40);
+    if (!text) return;
+
+    ctx.save();
+    ctx.globalAlpha = 0.92;
+    ctx.font = "14px system-ui";
+
+    const w = ctx.measureText(text).width;
+    const px = x + 8;
+    const py = y - 10;
+
+    if (highlight) {
+      ctx.shadowColor = "rgba(110,160,255,0.95)";
+      ctx.shadowBlur = 10;
+    }
+
+    const bx = px - 4;
+    const by = py - 16;
+    const bw = w + 8;
+    const bh = 20;
+
+    ctx.fillStyle = highlight ? "rgba(0,0,0,0.70)" : "rgba(0,0,0,0.55)";
+    ctx.fillRect(bx, by, bw, bh);
+
+    if (highlight) {
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(110,160,255,0.95)";
+      ctx.strokeRect(bx, by, bw, bh);
+    }
+
+    // text (brighter on hover)
+    ctx.shadowColor = highlight ? "rgba(110,160,255,0.95)" : "transparent";
+    ctx.shadowBlur = highlight ? 8 : 0;
+
+    ctx.fillStyle = highlight
+      ? "rgba(255,255,255,0.98)"
+      : (answered ? "rgba(200,255,220,0.95)" : "rgba(255,255,255,0.92)");
+
+    ctx.fillText(text, px, py);
+    ctx.restore();
   }
 
   function drawTarget(t, opts = {}) {
     const selected = opts.selected || false;
     const answered = state.answeredIds.has(t.id);
 
-    // '?' marker should show ONLY in quiz mode, only for unanswered,
-    // and NOT while reveal-all is active.
+    // '?' marker shows in quiz mode for unanswered, but NOT during reveal-all
     const drawQuestion = state.mode === "quiz" && !answered && !state.showHotspots;
 
-    // Show a hotspot if:
-    // - editing, OR reveal is on, OR selected, OR answered correctly, OR it's an unanswered quiz marker ('?')
-    const show = state.mode === "edit" || state.showHotspots || selected || answered || drawQuestion;
+    // hover highlight: quiz mode, not reveal-all
+    const hovered = state.mode === "quiz" && !state.showHotspots && state.hoverId === t.id;
+
+    // show if editing/reveal/selected/answered OR we need to draw '?' OR hovered highlight
+    const show = state.mode === "edit" || state.showHotspots || selected || answered || drawQuestion || hovered;
     if (!show) return;
 
-    // Only draw outline when editing/reveal (or selected)
     const drawOutline = state.mode === "edit" || state.showHotspots || selected;
-
-    // Draw label when editing/reveal OR answered (answered stays revealed)
     const drawLabel = state.mode === "edit" || state.showHotspots || answered;
-
-    // Center point for markers
-    const cx = (t.shape === "circle") ? t.x : (t.x1 + t.x2) / 2;
-    const cy = (t.shape === "circle") ? t.y : (t.y1 + t.y2) / 2;
 
     ctx.save();
 
-    // ---- outline ----
-    if (drawOutline) {
-      ctx.globalAlpha = answered ? 0.75 : 0.9;
-      ctx.lineWidth = selected ? 4 : 2;
+    if (t.shape === "circle") {
+      const r = t.r ?? 26;
 
-      if (t.shape === "circle") {
+      if (drawOutline) {
+        ctx.globalAlpha = answered ? 0.75 : 0.9;
+        ctx.lineWidth = selected ? 4 : 2;
         ctx.beginPath();
-        ctx.arc(t.x, t.y, t.r ?? 26, 0, Math.PI * 2);
-        ctx.strokeStyle = selected
-          ? "rgba(110,160,255,0.95)"
-          : "rgba(255,255,255,0.75)";
+        ctx.arc(t.x, t.y, r, 0, Math.PI * 2);
+        ctx.strokeStyle = selected ? "rgba(110,160,255,0.95)" : "rgba(255,255,255,0.75)";
         ctx.stroke();
+      }
 
-        if (selected) {
-          ctx.fillStyle = "rgba(110,160,255,0.12)";
-          ctx.fill();
-        }
-      } else if (t.shape === "rect") {
+      if (drawLabel) {
+        drawLabelAt(t.x + r, t.y, t.answer, answered);
+      }
+
+      if (drawQuestion) {
+        drawQuestionBubble(t.x, t.y, r * 0.55);
+      }
+
+      ctx.restore();
+      return;
+    }
+
+    if (t.shape === "rect") {
+      const cx = (t.x1 + t.x2) / 2;
+      const cy = (t.y1 + t.y2) / 2;
+
+      if (drawOutline) {
+        ctx.globalAlpha = answered ? 0.75 : 0.9;
+        ctx.lineWidth = selected ? 4 : 2;
+
         const x1 = Math.min(t.x1, t.x2);
         const y1 = Math.min(t.y1, t.y2);
         const w = Math.abs(t.x2 - t.x1);
         const h = Math.abs(t.y2 - t.y1);
 
-        ctx.strokeStyle = selected
-          ? "rgba(110,160,255,0.95)"
-          : "rgba(255,255,255,0.75)";
+        ctx.strokeStyle = selected ? "rgba(110,160,255,0.95)" : "rgba(255,255,255,0.75)";
         ctx.strokeRect(x1, y1, w, h);
-
-        if (selected) {
-          ctx.fillStyle = "rgba(110,160,255,0.12)";
-          ctx.fillRect(x1, y1, w, h);
-        }
       }
+
+      if (drawLabel) {
+        drawLabelAt(cx, cy, t.answer, answered);
+      }
+
+      if (drawQuestion) {
+        const base = clamp(Math.min(Math.abs(t.x2 - t.x1), Math.abs(t.y2 - t.y1)) * 0.25, 10, 22);
+        drawQuestionBubble(cx, cy, base);
+      }
+
+      ctx.restore();
+      return;
     }
 
-    // ---- label (answered stays revealed; reveal-all shows all answers) ----
-    if (drawLabel) {
-      const label = (t.answer || "").trim().slice(0, 40);
-      if (label) {
-        ctx.globalAlpha = 0.92;
-        ctx.font = "14px system-ui";
+    if (t.shape === "route") {
+      // Routes: do NOT draw "?" or labels on the map.
+      // In Quiz mode, the route line highlights on hover and shows a tooltip near the cursor instead.
+      // In Edit/Reveal, we still draw the route geometry, but keep labels off-map.
+      const drawRouteLine = drawOutline || hovered || answered;
 
-        let px, py;
-        if (t.shape === "circle") {
-          px = t.x + (t.r ?? 26) + 6;
-          py = t.y - 10;
+      if (drawRouteLine) {
+        if (hovered) {
+          drawRoute(t.points, {
+            strokeStyle: "rgba(110,160,255,0.95)",
+            lineWidth: 7,
+            alpha: 0.95
+          });
+        } else if (answered) {
+          drawRoute(t.points, {
+            strokeStyle: "rgba(251,188,4,0.95)",
+            lineWidth: 5,
+            alpha: 0.95
+          });
         } else {
-          px = Math.min(t.x1, t.x2) + 6;
-          py = Math.min(t.y1, t.y2) - 8;
+          drawRoute(t.points, {
+            strokeStyle: "rgba(255,255,255,0.80)",
+            lineWidth: 4,
+            alpha: 0.85
+          });
         }
-
-        const w = ctx.measureText(label).width;
-        ctx.fillStyle = "rgba(0,0,0,0.55)";
-        ctx.fillRect(px - 4, py - 16, w + 8, 20);
-
-        ctx.fillStyle = answered
-          ? "rgba(200,255,220,0.95)"
-          : "rgba(255,255,255,0.92)";
-        ctx.fillText(label, px, py);
       }
-    }
 
-    // ---- '?' marker (quiz mode only, unanswered only, hidden during reveal-all) ----
-    if (drawQuestion) {
-      const base = (t.shape === "circle")
-        ? clamp((t.r ?? 26) * 0.55, 10, 22)
-        : clamp(Math.min(Math.abs(t.x2 - t.x1), Math.abs(t.y2 - t.y1)) * 0.25, 10, 22);
-
-      const r = base + 6;
-
-      ctx.globalAlpha = 0.95;
-
-      // bubble
-      ctx.beginPath();
-      ctx.arc(cx, cy, r, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(0,0,0,0.55)";
-      ctx.fill();
-
-      // ring
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(255,255,255,0.65)";
-      ctx.stroke();
-
-      // '?'
-      ctx.font = `bold ${Math.round(base + 10)}px system-ui`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillStyle = "rgba(255,255,255,0.92)";
-      ctx.fillText("?", cx, cy + 1);
-
-      ctx.textAlign = "start";
-      ctx.textBaseline = "alphabetic";
+      ctx.restore();
+      return;
     }
 
     ctx.restore();
@@ -641,7 +972,6 @@
     ctx.fillStyle = "#0e1422";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Loading screen
     if (state.imgLoading) {
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.font = "20px system-ui";
@@ -650,11 +980,9 @@
       ctx.fillStyle = "rgba(255,255,255,0.6)";
       ctx.font = "14px system-ui";
       ctx.fillText("If this takes more than a few seconds, refresh the page.", 24, 70);
-
       return;
     }
 
-    // Error screen
     if (!state.imgLoaded || !state.img) {
       ctx.fillStyle = "rgba(255,255,255,0.85)";
       ctx.font = "18px system-ui";
@@ -663,7 +991,6 @@
       ctx.fillStyle = "rgba(255,255,255,0.6)";
       ctx.font = "14px system-ui";
       ctx.fillText(state.imgLoadError || "Check that map.png exists next to index.html.", 24, 70);
-
       return;
     }
 
@@ -674,7 +1001,27 @@
     const sel = state.selectedId;
     for (const t of state.targets) drawTarget(t, { selected: t.id === sel });
 
-    // Draw rect drag preview
+    // Draw route draft (edit mode)
+    if (state.mode === "edit" && state.tool === "route" && state.routeDraft?.points?.length) {
+      // draft line
+      drawRoute(state.routeDraft.points, {
+        strokeStyle: "rgba(110,160,255,0.95)",
+        lineWidth: 5,
+        alpha: 0.9
+      });
+
+      // draft points
+      ctx.save();
+      ctx.fillStyle = "rgba(110,160,255,0.95)";
+      for (const p of state.routeDraft.points) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    // Rect drag preview
     if (state.rectDrag) {
       const { start, end } = state.rectDrag;
       const x = Math.min(start.x, end.x);
@@ -691,7 +1038,7 @@
     }
   }
 
-  // ---- QUIZ answering (FIX: this was missing) ----
+  // ---- QUIZ answering ----
   function askAnswerForTarget(t) {
     const user = window.prompt("Type the name for this location/label:", "");
     if (user === null) return;
@@ -708,7 +1055,7 @@
     if (ok) {
       state.stats.correct += 1;
       state.answeredIds.add(t.id);
-      // silent success: no dialog
+      // silent success
     } else {
       alert(`❌ Not quite.\n\nCorrect: ${t.answer}`);
     }
@@ -719,7 +1066,73 @@
     render();
   }
 
+  // ---- Route draft helpers ----
+  function startOrAddRoutePoint(p) {
+    if (!state.routeDraft) state.routeDraft = { points: [] };
+    state.routeDraft.points.push({ x: p.x, y: p.y });
+    refreshUI();
+    render();
+  }
+
+  function finishRouteDraft() {
+    const pts = state.routeDraft?.points || [];
+    if (pts.length < 2) return;
+
+    const t = {
+      id: uid(),
+      answer: "",
+      aliases: [],
+      shape: "route",
+      points: pts.map(p => ({x: p.x, y: p.y}))
+    };
+
+    state.targets.push(t);
+    state.selectedId = t.id;
+    state.routeDraft = null;
+
+    saveTargets();
+    renderTargetsList();
+    selectTarget(t.id);
+    refreshUI();
+    render();
+
+    // focus answer
+    answerInput.focus();
+  }
+
+  function cancelRouteDraft() {
+    state.routeDraft = null;
+    refreshUI();
+    render();
+  }
+
   // ---------- events ----------
+  // Sidebar collapse toggle (persisted)
+  toggleSidebarBtn.addEventListener("click", () => {
+    const collapsed = !document.body.classList.contains("sidebar-collapsed");
+    setSidebarCollapsed(collapsed);
+  });
+
+  // Scroll-wheel zoom on the map (works in both Quiz/Edit)
+  canvasWrap.addEventListener("wheel", (e) => {
+    if (!state.imgLoaded) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? ZOOM_STEP_IN : ZOOM_STEP_OUT;
+    setZoom(state.zoom * factor, e.clientX, e.clientY);
+  }, { passive: false });
+
+  // Re-fit canvas display on resize (keeps scroll position roughly stable)
+  window.addEventListener("resize", () => {
+    const prevScale = (state.fitScale * state.zoom) || 1;
+    applyCanvasDisplaySize();
+    const nextScale = (state.fitScale * state.zoom) || 1;
+    if (prevScale > 0 && nextScale > 0) {
+      canvasWrap.scrollLeft = canvasWrap.scrollLeft * (nextScale / prevScale);
+      canvasWrap.scrollTop = canvasWrap.scrollTop * (nextScale / prevScale);
+    }
+    render();
+  });
+
   toggleModeBtn.addEventListener("click", () => {
     setMode(state.mode === "quiz" ? "edit" : "quiz");
   });
@@ -727,10 +1140,7 @@
   toggleToolBtn.addEventListener("click", toggleTool);
 
   document.addEventListener("keydown", (e) => {
-    if (state.mode !== "edit") return;
-    if (e.key !== "r" && e.key !== "R") return;
-
-    // Don't toggle when typing in inputs/textareas/selects (Answer/Alias fields, etc.)
+    // Don't interfere while typing in fields
     const el = document.activeElement;
     const tag = (el?.tagName || "").toLowerCase();
     const isTypingField =
@@ -739,15 +1149,38 @@
       tag === "textarea" ||
       tag === "select";
 
-    if (isTypingField) return;
+    // R cycles tools in edit mode, but not while typing
+    if (state.mode === "edit" && !isTypingField && (e.key === "r" || e.key === "R")) {
+      toggleTool();
+      return;
+    }
 
-    toggleTool();
+    // Route finishing/cancel keys (edit mode)
+    if (state.mode === "edit" && state.tool === "route" && !isTypingField) {
+      if (e.key === "Enter") {
+        finishRouteDraft();
+      } else if (e.key === "Escape") {
+        cancelRouteDraft();
+      }
+    }
   });
 
-  clearProgressBtn.addEventListener("click", clearProgress);
+  clearProgressBtn.addEventListener("click", () => {
+    hideRouteHoverTip();
+    state.answeredIds = new Set();
+    state.attemptsById = {};
+    state.stats = { correct: 0, attempted: 0 };
+    saveProgress();
+    render();
+    refreshUI();
+    renderTargetsList();
+  });
 
-  revealAllBtn.addEventListener("click", () => { state.showHotspots = true; render(); });
-  hideAllBtn.addEventListener("click", () => { state.showHotspots = false; render(); });
+  revealAllBtn.addEventListener("click", () => { state.showHotspots = true; state.hoverId = null; hideRouteHoverTip(); render(); });
+  hideAllBtn.addEventListener("click", () => { state.showHotspots = false; hideRouteHoverTip(); render(); });
+
+  finishRouteBtn.addEventListener("click", finishRouteDraft);
+  cancelRouteBtn.addEventListener("click", cancelRouteDraft);
 
   saveSelectedBtn.addEventListener("click", upsertSelectedFromInputs);
   deleteSelectedBtn.addEventListener("click", deleteSelected);
@@ -787,8 +1220,47 @@
     }
   });
 
+  // Hover highlight in quiz mode (routes highlight on hover + tooltip near cursor)
+  canvas.addEventListener("mousemove", (evt) => {
+    if (!state.imgLoaded) return;
+
+    // Tooltip/hover only in Quiz mode and not during Reveal All
+    if (state.mode !== "quiz" || state.showHotspots) {
+      if (state.hoverId) state.hoverId = null;
+      hideRouteHoverTip();
+      render();
+      return;
+    }
+
+    const p = getCanvasPoint(evt);
+    const hover = findHoverTarget(p);
+
+    // Tooltip follows cursor smoothly for ROUTES only
+    const t = hover ? getTargetById(hover) : null;
+    if (t && t.shape === "route") {
+      showRouteHoverTip(t, evt.clientX, evt.clientY);
+    } else {
+      hideRouteHoverTip();
+    }
+
+    // Only redraw map if hover target changed (keeps it snappy)
+    if (hover !== state.hoverId) {
+      state.hoverId = hover;
+      render();
+    }
+  });
+
+  canvas.addEventListener("mouseleave", () => {
+    if (state.hoverId) {
+      state.hoverId = null;
+      render();
+    }
+    hideRouteHoverTip();
+  });
+
   canvas.addEventListener("mousedown", (evt) => {
     if (!state.imgLoaded) return;
+
     if (state.mode === "edit" && state.tool === "rect") {
       const p = getCanvasPoint(evt);
       state.rectDrag = { start: p, end: p };
@@ -800,6 +1272,14 @@
     if (!state.rectDrag) return;
     state.rectDrag.end = getCanvasPoint(evt);
     render();
+  });
+
+  // Double-click finishes a route draft (edit mode)
+  canvas.addEventListener("dblclick", (evt) => {
+    if (!state.imgLoaded) return;
+    if (state.mode === "edit" && state.tool === "route") {
+      finishRouteDraft();
+    }
   });
 
   canvas.addEventListener("mouseup", (evt) => {
@@ -827,7 +1307,8 @@
         return;
       }
 
-      if (state.tool === "rect" && state.rectDrag) {
+      if (state.tool === "rect") {
+        if (!state.rectDrag) return;
         const start = state.rectDrag.start;
         const end = state.rectDrag.end;
         state.rectDrag = null;
@@ -854,9 +1335,15 @@
         answerInput.focus();
         return;
       }
+
+      if (state.tool === "route") {
+        startOrAddRoutePoint(p);
+        return;
+      }
     }
 
     if (state.mode === "quiz") {
+      // click whichever target is hit (routes use distance tolerance)
       const hit = state.targets.find(t => hitTest(t, p));
       if (!hit) return;
       if (state.answeredIds.has(hit.id)) return;
@@ -867,6 +1354,10 @@
   // ---------- init ----------
   async function init() {
     loadFromStorage();
+
+    // Restore sidebar state
+    setSidebarCollapsed(localStorage.getItem(UI_KEYS.sidebarCollapsed) === "1");
+
     refreshUI();
     renderTargetsList();
     render();
