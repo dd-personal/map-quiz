@@ -26,6 +26,17 @@
   const ZOOM_STEP_IN = 1.12;
   const ZOOM_STEP_OUT = 1 / ZOOM_STEP_IN;
 
+  // Drag-to-pan (quiz mode)
+  const PAN_THRESHOLD_PX = 4;
+  const pan = {
+    active: false,
+    moved: false,
+    startClientX: 0,
+    startClientY: 0,
+    startScrollLeft: 0,
+    startScrollTop: 0,
+  };
+
   // ---------- state ----------
   const state = {
     mode: "quiz",          // "quiz" | "edit"
@@ -581,6 +592,8 @@
   }
 
   function refreshUI() {
+    document.body.classList.toggle("mode-quiz", state.mode === "quiz");
+
     modePill.textContent = "Mode: " + (state.mode === "quiz" ? "Quiz" : "Edit");
     toggleModeBtn.textContent = state.mode === "quiz" ? "Switch to Edit" : "Switch to Quiz";
     editCard.style.display = state.mode === "edit" ? "block" : "none";
@@ -807,7 +820,7 @@
           // Tune these two values if you want it lighter/heavier:
           //   opacity: 0.36–0.48, width: 3–4
           drawRoute(t.points, {
-            strokeStyle: "rgba(255,0,0,0.12)",
+            strokeStyle: "rgba(255,255,255,0.42)",
             lineWidth: 3.6,
             alpha: 1
           });
@@ -969,6 +982,46 @@
     render();
   }
 
+  function beginPan(evt) {
+    if (evt.button !== 0) return; // left-click only
+    if (state.mode !== "quiz") return;
+    if (!state.imgLoaded) return;
+
+    pan.active = true;
+    pan.moved = false;
+    pan.startClientX = evt.clientX;
+    pan.startClientY = evt.clientY;
+    pan.startScrollLeft = canvasWrap.scrollLeft;
+    pan.startScrollTop = canvasWrap.scrollTop;
+
+    // Clear hover visuals while panning
+    state.hoverId = null;
+    hideRouteHoverTip();
+    canvasWrap.classList.add("panning");
+    render();
+    evt.preventDefault();
+  }
+
+  function updatePan(evt) {
+    if (!pan.active) return;
+    const dx = evt.clientX - pan.startClientX;
+    const dy = evt.clientY - pan.startClientY;
+    if (!pan.moved && (Math.abs(dx) + Math.abs(dy) >= PAN_THRESHOLD_PX)) {
+      pan.moved = true;
+    }
+    if (!pan.moved) return;
+    canvasWrap.scrollLeft = pan.startScrollLeft - dx;
+    canvasWrap.scrollTop = pan.startScrollTop - dy;
+    hideRouteHoverTip();
+    evt.preventDefault();
+  }
+
+  function endPan() {
+    if (!pan.active) return;
+    pan.active = false;
+    canvasWrap.classList.remove("panning");
+  }
+
   // ---------- events ----------
 
   // Sidebar collapse toggle (persisted)
@@ -984,6 +1037,22 @@
     const factor = e.deltaY < 0 ? ZOOM_STEP_IN : ZOOM_STEP_OUT;
     setZoom(state.zoom * factor, e.clientX, e.clientY);
   }, { passive: false });
+
+  // Drag-to-pan (quiz mode)
+  window.addEventListener("mousemove", (e) => {
+    if (!pan.active) return;
+    updatePan(e);
+  }, { passive: false });
+
+  window.addEventListener("mouseup", () => {
+    if (!pan.active) return;
+    endPan();
+  });
+
+  window.addEventListener("blur", () => {
+    if (!pan.active) return;
+    endPan();
+  });
 
   // Re-fit canvas display on resize (keeps scroll position roughly stable)
   window.addEventListener("resize", () => {
@@ -1148,6 +1217,11 @@
   canvas.addEventListener("mousemove", (evt) => {
     if (!state.imgLoaded) return;
 
+    if (pan.active) {
+      hideRouteHoverTip();
+      return;
+    }
+
     // Tooltip/hover only in Quiz mode and not during Reveal All
     if (state.mode !== "quiz" || state.showHotspots) {
       if (state.hoverId) state.hoverId = null;
@@ -1189,6 +1263,12 @@
       const p = getCanvasPoint(evt);
       state.rectDrag = { start: p, end: p };
       render();
+      return;
+    }
+
+    // Quiz mode: click-drag to pan the map
+    if (state.mode === "quiz") {
+      beginPan(evt);
     }
   });
 
@@ -1208,6 +1288,10 @@
 
   canvas.addEventListener("mouseup", (evt) => {
     if (!state.imgLoaded) return;
+    // If we were dragging to pan, do not treat this as a click-to-answer
+    if (state.mode === "quiz" && pan.active && pan.moved) {
+      return;
+    }
     const p = getCanvasPoint(evt);
 
     if (state.mode === "edit") {

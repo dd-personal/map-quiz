@@ -76,3 +76,7 @@
 }
 .tabBtn:hover { border-color:#3b4b75; }
 .tabBtn.active { background:#1b2a4a; border-color:#3b5aa0; }
+
+/* Drag-to-pan (quiz mode) */
+body.mode-quiz #canvasWrap { cursor: grab; }
+body.mode-quiz #canvasWrap.panning { cursor: grabbing; }

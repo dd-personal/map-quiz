@@ -16,7 +16,7 @@
         <button id="tabMap2" class="tabBtn" type="button" role="tab" aria-selected="false">Beat/Radio Quiz</button>
       </div>
       <small class="muted" style="margin-top:8px;">
-        Map Quiz of roads/cities/villages OR Beat/Radio quiz for towns/beats/radio numbers
+        Each quiz uses its own locked map image and its own hotspots file.
       </small>
     </div>
 
@@ -33,11 +33,16 @@
     </div>
 
     <div class="card">
-      <div style="font-weight:600;">Map image:</div>
+      <div style="font-weight:600;">Locked map image</div>
       <div class="muted" id="imgStatus">Loading map…</div>
       <div class="row" style="margin-top:10px;">
         <button id="clearProgress" type="button">Clear Quiz Progress</button>
       </div>
+      <small class="muted">
+        Put <span class="kbd">map.png</span>, <span class="kbd">map2.png</span>,
+        <span class="kbd">hotspots.json</span>, and <span class="kbd">hotspots2.json</span>
+        next to this <span class="kbd">index.html</span>.
+      </small>
     </div>
 
     <div class="card">
