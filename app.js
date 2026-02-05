@@ -820,7 +820,7 @@
           // Tune these two values if you want it lighter/heavier:
           //   opacity: 0.36–0.48, width: 3–4
           drawRoute(t.points, {
-            strokeStyle: "rgba(255,255,255,0.42)",
+            strokeStyle: "rgba(255,0,0,0.12)",
             lineWidth: 3.6,
             alpha: 1
           });
