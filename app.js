@@ -447,28 +447,131 @@
     return false;
   }
 
-  function findHoverTarget(p) {
-    // Prefer nearest route/shape within tolerance
-    let bestId = null;
-    let bestDist = Infinity;
+
+  function nowMs() {
+    return (typeof performance !== "undefined" && performance && typeof performance.now === "function")
+      ? performance.now()
+      : Date.now();
+  }
+
+  // --- Overlap-aware picking (prevents top hotspots from blocking lower ones) ---
+  // When you're very close to a route, we prefer the route even if you're also inside a box.
+  const ROUTE_PICK_OVERRIDE = 0.25; // 0..1 (lower = stricter)
+  let lastOverlapPick = null; // {x,y,idsSig,idx,ts}
+
+  function rectMetrics(t, p) {
+    const x1 = Math.min(t.x1, t.x2);
+    const x2 = Math.max(t.x1, t.x2);
+    const y1 = Math.min(t.y1, t.y2);
+    const y2 = Math.max(t.y1, t.y2);
+    const w = Math.max(0, x2 - x1);
+    const h = Math.max(0, y2 - y1);
+    const area = w * h;
+
+    const cx = x1 + w / 2;
+    const cy = y1 + h / 2;
+    const centerDist = Math.hypot(p.x - cx, p.y - cy);
+
+    const diagHalf = Math.max(1, Math.hypot(w, h) / 2);
+    const score = centerDist / diagHalf; // 0..~1 for points inside
+    return { area, score };
+  }
+
+  function circleMetrics(t, p) {
+    const r = (typeof t.r === "number" && Number.isFinite(t.r)) ? t.r : 26;
+    const d = Math.hypot(p.x - t.x, p.y - t.y);
+    const area = Math.PI * r * r;
+    const score = r > 0 ? (d / r) : 0; // 0..1 inside
+    return { area, score };
+  }
+
+  function getHitCandidates(p, { includeAnswered = true } = {}) {
+    const candidates = [];
 
     for (const t of state.targets) {
+      // In quiz mode, answered hotspots should be "click-through" so they don't block unanswered ones.
+      if (!includeAnswered && state.answeredIds.has(t.id)) continue;
+
       if (t.shape === "route") {
         const d = routeMinDistance(t.points, p);
-        if (d <= ROUTE_HIT_TOL && d < bestDist) {
-          bestDist = d;
-          bestId = t.id;
+        if (d <= ROUTE_HIT_TOL) {
+          candidates.push({ t, kind: "route", score: d / ROUTE_HIT_TOL });
         }
-      } else {
-        // circle/rect: only hover if hit (inside)
-        if (hitTest(t, p)) {
-          bestId = t.id;
-          bestDist = 0;
-          break;
-        }
+        continue;
+      }
+
+      if (!hitTest(t, p)) continue;
+
+      if (t.shape === "rect") {
+        const { area, score } = rectMetrics(t, p);
+        candidates.push({ t, kind: "rect", area, score });
+      } else if (t.shape === "circle") {
+        const { area, score } = circleMetrics(t, p);
+        candidates.push({ t, kind: "circle", area, score });
       }
     }
-    return bestId;
+
+    return candidates;
+  }
+
+  function buildPickList(p, { includeAnswered = true } = {}) {
+    const candidates = getHitCandidates(p, { includeAnswered });
+    if (!candidates.length) return [];
+
+    const routes = candidates
+      .filter(c => c.kind === "route")
+      .sort((a, b) => a.score - b.score);
+
+    const others = candidates
+      .filter(c => c.kind !== "route")
+      // Prefer the smallest hotspot when boxes overlap; break ties by "closest to center".
+      .sort((a, b) => (a.area - b.area) || (a.score - b.score));
+
+    // If you're very close to a route, let the route win; otherwise prefer the smallest/closest box/dot.
+    let primary = others;
+    let secondary = routes;
+    if (routes.length && (!others.length || routes[0].score <= ROUTE_PICK_OVERRIDE)) {
+      primary = routes;
+      secondary = others;
+    }
+
+    return primary.concat(secondary).map(c => c.t);
+  }
+
+  function bestTargetAtPoint(p, { includeAnswered = true } = {}) {
+    const list = buildPickList(p, { includeAnswered });
+    return list.length ? list[0] : null;
+  }
+
+  function pickTargetAtPoint(p, { includeAnswered = true, cycle = false } = {}) {
+    const list = buildPickList(p, { includeAnswered });
+    if (!list.length) return null;
+
+    if (!cycle || list.length === 1) {
+      lastOverlapPick = { x: p.x, y: p.y, idsSig: list.map(t => t.id).join(","), idx: 0, ts: nowMs() };
+      return list[0];
+    }
+
+    const sig = list.map(t => t.id).join(",");
+    const tNow = nowMs();
+    const near =
+      lastOverlapPick &&
+      lastOverlapPick.idsSig === sig &&
+      (Math.hypot(p.x - lastOverlapPick.x, p.y - lastOverlapPick.y) <= 10) &&
+      (tNow - lastOverlapPick.ts <= 1800);
+
+    // If this is the first cycle click at this spot, jump to the next candidate.
+    const idx = near
+      ? ((lastOverlapPick.idx + 1) % list.length)
+      : Math.min(1, list.length - 1);
+
+    lastOverlapPick = { x: p.x, y: p.y, idsSig: sig, idx, ts: tNow };
+    return list[idx];
+  }
+
+    function findHoverTarget(p) {
+    const hit = bestTargetAtPoint(p, { includeAnswered: true });
+    return hit ? hit.id : null;
   }
 
   function selectTarget(id) {
@@ -1266,9 +1369,11 @@
       return;
     }
 
-    // Quiz mode: click-drag to pan the map
+    // Quiz mode: click-drag to pan the map (only when starting on empty space)
     if (state.mode === "quiz") {
-      beginPan(evt);
+      const p = getCanvasPoint(evt);
+      const hit = bestTargetAtPoint(p, { includeAnswered: true });
+      if (!hit) beginPan(evt);
     }
   });
 
@@ -1289,8 +1394,10 @@
   canvas.addEventListener("mouseup", (evt) => {
     if (!state.imgLoaded) return;
     // If we were dragging to pan, do not treat this as a click-to-answer
-    if (state.mode === "quiz" && pan.active && pan.moved) {
-      return;
+    if (state.mode === "quiz" && pan.active) {
+      const moved = pan.moved;
+      endPan();
+      if (moved) return;
     }
     const p = getCanvasPoint(evt);
 
@@ -1351,10 +1458,10 @@
     }
 
     if (state.mode === "quiz") {
-      // click whichever target is hit (routes use distance tolerance)
-      const hit = state.targets.find(t => hitTest(t, p));
+      // Overlap-safe pick. Answered hotspots are click-through.
+      // Hold Shift and click repeatedly to cycle through overlapping hotspots.
+      const hit = pickTargetAtPoint(p, { includeAnswered: false, cycle: evt.shiftKey });
       if (!hit) return;
-      if (state.answeredIds.has(hit.id)) return;
       askAnswerForTarget(hit);
     }
   });
