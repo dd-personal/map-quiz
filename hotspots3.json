@@ -1,0 +1,184 @@
+[
+  {
+    "id": "x0z07jc1",
+    "answer": "Cross Plains",
+    "aliases": [],
+    "shape": "circle",
+    "x": 283.538961038961,
+    "y": 368.1907894736842,
+    "r": 15
+  },
+  {
+    "id": "nfw3envh",
+    "answer": "Middleton",
+    "aliases": [],
+    "shape": "circle",
+    "x": 507.17532467532465,
+    "y": 405.109649122807,
+    "r": 15
+  },
+  {
+    "id": "dzefps8q",
+    "answer": "Shorewood Hills",
+    "aliases": [],
+    "shape": "circle",
+    "x": 560.0892857142857,
+    "y": 434.04605263157896,
+    "r": 15
+  },
+  {
+    "id": "543x3s2w",
+    "answer": "Waunakee",
+    "aliases": [],
+    "shape": "circle",
+    "x": 570.0730519480519,
+    "y": 208.54166666666669,
+    "r": 15
+  },
+  {
+    "id": "c5rnc4l7",
+    "answer": "Blue Mounds",
+    "aliases": [],
+    "shape": "circle",
+    "x": 30.949675324675326,
+    "y": 569.7478070175439,
+    "r": 15
+  },
+  {
+    "id": "4ejm4m5i",
+    "answer": "Mt. Horeb",
+    "aliases": [],
+    "shape": "circle",
+    "x": 162.7353896103896,
+    "y": 581.7214912280702,
+    "r": 15
+  },
+  {
+    "id": "kn0j5ajz",
+    "answer": "Verona",
+    "aliases": [],
+    "shape": "circle",
+    "x": 459.25324675324674,
+    "y": 611.655701754386,
+    "r": 15
+  },
+  {
+    "id": "erhfeli5",
+    "answer": "Belleville",
+    "aliases": [],
+    "shape": "circle",
+    "x": 455.2597402597402,
+    "y": 826.1842105263158,
+    "r": 15
+  },
+  {
+    "id": "a0hr6abd",
+    "answer": "Fitchburg",
+    "aliases": [],
+    "shape": "circle",
+    "x": 616.9967532467532,
+    "y": 596.688596491228,
+    "r": 15
+  },
+  {
+    "id": "u0mey477",
+    "answer": "Oregon",
+    "aliases": [],
+    "shape": "circle",
+    "x": 681.8912337662338,
+    "y": 699.4627192982457,
+    "r": 15
+  },
+  {
+    "id": "ys4umhyq",
+    "answer": "Stoughton",
+    "aliases": [],
+    "shape": "circle",
+    "x": 913.5146103896104,
+    "y": 715.4276315789474,
+    "r": 15
+  },
+  {
+    "id": "a2l8uoue",
+    "answer": "Cottage Grove",
+    "aliases": [],
+    "shape": "circle",
+    "x": 945.4626623376623,
+    "y": 442.02850877192986,
+    "r": 15
+  },
+  {
+    "id": "pgv8iyw0",
+    "answer": "McFarland",
+    "aliases": [],
+    "shape": "circle",
+    "x": 815.6737012987013,
+    "y": 525.844298245614,
+    "r": 15
+  },
+  {
+    "id": "neqtpagf",
+    "answer": "Monona",
+    "aliases": [],
+    "shape": "circle",
+    "x": 759.7646103896104,
+    "y": 441.030701754386,
+    "r": 15
+  },
+  {
+    "id": "mtua6b4y",
+    "answer": "Capitol Police",
+    "aliases": [],
+    "shape": "circle",
+    "x": 676.8993506493506,
+    "y": 484.93421052631584,
+    "r": 15
+  },
+  {
+    "id": "zer02e28",
+    "answer": "UW Police",
+    "aliases": [
+      "UW"
+    ],
+    "shape": "circle",
+    "x": 689.8782467532468,
+    "y": 393.1359649122807,
+    "r": 15
+  },
+  {
+    "id": "1khnzjgh",
+    "answer": "Maple Bluff",
+    "aliases": [],
+    "shape": "circle",
+    "x": 695.8685064935065,
+    "y": 307.32456140350877,
+    "r": 15
+  },
+  {
+    "id": "gfnpdwud",
+    "answer": "DeForest",
+    "aliases": [],
+    "shape": "circle",
+    "x": 741.7938311688312,
+    "y": 156.65570175438597,
+    "r": 15
+  },
+  {
+    "id": "h8jkaamo",
+    "answer": "Sun Prairie",
+    "aliases": [],
+    "shape": "circle",
+    "x": 920.5032467532467,
+    "y": 226.50219298245617,
+    "r": 15
+  },
+  {
+    "id": "98lz3utd",
+    "answer": "Marshall",
+    "aliases": [],
+    "shape": "circle",
+    "x": 1124.172077922078,
+    "y": 257.4342105263158,
+    "r": 15
+  }
+]

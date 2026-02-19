@@ -2,7 +2,9 @@
   // ---- CONFIG ----
   const QUIZZES = {
     map1: { id: "map1", tabId: "tabMap1", label: "Map Quiz", mapFile: "map.png", hotspotsFile: "hotspots.json" },
-    map2: { id: "map2", tabId: "tabMap2", label: "Beat/Radio Quiz", mapFile: "map2.png", hotspotsFile: "hotspots2.json" }
+    map2: { id: "map2", tabId: "tabMap2", label: "Beat/Radio Quiz", mapFile: "map2.png", hotspotsFile: "hotspots2.json" },
+    // Add your new map image + hotspot file here
+    map3: { id: "map3", tabId: "tabMap3", label: "Map 3", mapFile: "map3.png", hotspotsFile: "hotspots3.json" }
   };
   let activeQuizId = "map1";
   const mapUrl = () => new URL(QUIZZES[activeQuizId].mapFile, window.location.href).toString();
@@ -69,6 +71,7 @@
   // Tabs (multi-map)
   const tabMap1Btn = document.getElementById("tabMap1");
   const tabMap2Btn = document.getElementById("tabMap2");
+  const tabMap3Btn = document.getElementById("tabMap3");
 
 
   const imgStatus = document.getElementById("imgStatus");
@@ -1185,6 +1188,11 @@
       tabMap2Btn.classList.toggle("active", on);
       tabMap2Btn.setAttribute("aria-selected", on ? "true" : "false");
     }
+    if (tabMap3Btn) {
+      const on = activeQuizId === "map3";
+      tabMap3Btn.classList.toggle("active", on);
+      tabMap3Btn.setAttribute("aria-selected", on ? "true" : "false");
+    }
   }
 
   async function switchQuiz(nextId) {
@@ -1243,6 +1251,7 @@
   toggleToolBtn.addEventListener("click", toggleTool);
   if (tabMap1Btn) tabMap1Btn.addEventListener("click", () => { switchQuiz("map1"); });
   if (tabMap2Btn) tabMap2Btn.addEventListener("click", () => { switchQuiz("map2"); });
+  if (tabMap3Btn) tabMap3Btn.addEventListener("click", () => { switchQuiz("map3"); });
 
   document.addEventListener("keydown", (e) => {
     // Don't interfere while typing in fields
