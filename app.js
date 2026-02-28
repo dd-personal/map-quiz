@@ -165,10 +165,14 @@
     const [, chapter, section, remainder] = match;
     const subsectionMatches = Array.from(remainder.matchAll(/\(([^)]+)\)/g)).map((m) => m[1]);
 
-    // Match the Wisconsin State Law Library URL pattern provided by the user:
-    // 940.01(1)(a) -> elements-940.html#01-1
-    // 961.41(3g)   -> elements-961.html#41-3g
-    const fragment = subsectionMatches.length ? `${section}-${subsectionMatches[0]}` : section;
+    // Wisconsin Law Library anchor pattern examples:
+    // 940.01(1)     -> elements-940.html#01-1
+    // 940.01(1)(a)  -> elements-940.html#01-1a
+    // 940.09(1g)(a) -> elements-940.html#09-1ga
+    // 961.41(3g)    -> elements-961.html#41-3g
+    const fragment = subsectionMatches.length
+      ? `${section}-${subsectionMatches[0]}${subsectionMatches.slice(1).join("")}`
+      : section;
 
     return `https://wilawlibrary.gov/elements/elements-${chapter}.html#${fragment}`;
   }
@@ -1849,7 +1853,6 @@ async function switchQuiz(nextId) {
         legalCrimeTitleEl.textContent = titleText;
       }
     }
-
     if (legalCrimeStatuteEl) legalCrimeStatuteEl.textContent = legalCurrent.statute || "";
 
     // Definition under title/statute (hidden until solved or reveal)
