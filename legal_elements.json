@@ -257,8 +257,7 @@
       "Carrying the Victim",
       "Force or Threat of Imminent Force",
       "Without Consent",
-      "Intent",
-      "Intent to Obtain Property"
+      "Intent"
     ]
   },
   {
@@ -326,7 +325,7 @@
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally violated a court order issued under s. 973.049(2), which pertains to prohibiting contact with a victim, witness, or co-actor. The classification of the offense depends on the nature of the original conviction that resulted in the court order",
     "elements": [
       "Intentional Violation",
-      "Court Order Issued Under s. 973.049(2)",
+      "Court Ordered non-contact",
       "Resulting from a Conviction",
       "Knowledge"
     ]
@@ -487,7 +486,6 @@
       "Prohibited Conduct",
       "Knowledge",
       "Merchant’s Consent",
-      "Knowledge",
       "Intent"
     ]
   },
@@ -831,7 +829,6 @@
     "elements": [
       "Operator of a Vehicle",
       "Knowledge",
-      "Investigation",
       "Investigation"
     ]
   },
