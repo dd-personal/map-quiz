@@ -2,12 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Map Label Quiz</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div id="sidebarBackdrop" aria-hidden="true"></div>
+
   <div id="sidebar">
     <div class="card">
       <div style="font-weight:600; margin-bottom:10px;">Choose quiz</div>
@@ -161,6 +163,13 @@
 
   <div id="main">
     <button id="toggleSidebar" class="primary" title="Toggle panel" type="button">☰</button>
+
+    <div id="mobileMapControls" aria-label="Map controls">
+      <button id="mapZoomIn" class="primary" title="Zoom in" type="button">＋</button>
+      <button id="mapZoomOut" title="Zoom out" type="button">－</button>
+      <button id="mapZoomReset" title="Reset map view" type="button">Fit</button>
+    </div>
+
     <div id="routeHoverTip" aria-hidden="true"></div>
     <div id="canvasWrap">
       <canvas id="mapCanvas" width="900" height="600"></canvas>

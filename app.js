@@ -13,6 +13,8 @@
 
   // How close the cursor must be to a route to hover/highlight/click it (in pixels on the canvas)
   const ROUTE_HIT_TOL = 14;
+  const TOUCH_ROUTE_HIT_TOL = 24;
+  const MOBILE_BREAKPOINT = 900;
 
   // ---------- storage ----------
   const lsKey = (kind) => `mapQuiz.${activeQuizId}.${kind}.v1`;
@@ -196,6 +198,20 @@
     startScrollTop: 0,
   };
 
+  const touchNav = {
+    active: false,
+    moved: false,
+    pinchActive: false,
+    startClientX: 0,
+    startClientY: 0,
+    startScrollLeft: 0,
+    startScrollTop: 0,
+    pinchStartDist: 0,
+    pinchStartZoom: 1
+  };
+
+  let suppressMouseUntil = 0;
+
   // ---------- state ----------
   const state = {
     mode: "quiz",          // "quiz" | "edit"
@@ -224,6 +240,10 @@
   const canvasWrap = document.getElementById("canvasWrap");
   const toggleSidebarBtn = document.getElementById("toggleSidebar");
   const routeHoverTip = document.getElementById("routeHoverTip");
+  const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+  const mapZoomInBtn = document.getElementById("mapZoomIn");
+  const mapZoomOutBtn = document.getElementById("mapZoomOut");
+  const mapZoomResetBtn = document.getElementById("mapZoomReset");
 
   // Tabs (multi-map)
   const tabMap1Btn = document.getElementById("tabMap1");
@@ -291,6 +311,30 @@
   const uid = () => Math.random().toString(36).slice(2, 10);
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
 
+  function isMobileLayout() {
+    return window.innerWidth <= MOBILE_BREAKPOINT;
+  }
+
+  function isCoarsePointerDevice() {
+    return !!(window.matchMedia && (window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches));
+  }
+
+  function useTouchFriendlyUi() {
+    return isMobileLayout() || isCoarsePointerDevice();
+  }
+
+  function getRouteHitTolerance() {
+    return useTouchFriendlyUi() ? TOUCH_ROUTE_HIT_TOL : ROUTE_HIT_TOL;
+  }
+
+  function noteTouchInteraction() {
+    suppressMouseUntil = Date.now() + 800;
+  }
+
+  function shouldIgnoreMouse() {
+    return Date.now() < suppressMouseUntil;
+  }
+
   function showRouteHoverTip(target, clientX, clientY) {
     if (!routeHoverTip || !target) return;
     const answered = state.answeredIds.has(target.id);
@@ -299,6 +343,14 @@
 
     routeHoverTip.textContent = label;
     routeHoverTip.classList.toggle("answered", answered);
+
+    if (useTouchFriendlyUi()) {
+      routeHoverTip.style.left = "50%";
+      routeHoverTip.style.top = (window.innerHeight - 18) + "px";
+      routeHoverTip.style.opacity = "1";
+      routeHoverTip.style.transform = "translate(-50%, -100%)";
+      return;
+    }
 
     routeHoverTip.style.left = clientX + "px";
     routeHoverTip.style.top = clientY + "px";
@@ -362,12 +414,36 @@
   }
 
   function setSidebarCollapsed(collapsed) {
-    document.body.classList.toggle("sidebar-collapsed", collapsed);
     localStorage.setItem(UI_KEYS.sidebarCollapsed, collapsed ? "1" : "0");
-    if (toggleSidebarBtn) toggleSidebarBtn.textContent = collapsed ? "»" : "☰";
+
+    if (isMobileLayout()) {
+      document.body.classList.add("sidebar-collapsed");
+      document.body.classList.toggle("mobile-sidebar-open", !collapsed);
+      if (toggleSidebarBtn) toggleSidebarBtn.textContent = collapsed ? "☰" : "×";
+    } else {
+      document.body.classList.remove("mobile-sidebar-open");
+      document.body.classList.toggle("sidebar-collapsed", collapsed);
+      if (toggleSidebarBtn) toggleSidebarBtn.textContent = collapsed ? "»" : "☰";
+    }
 
     applyCanvasDisplaySize();
     render();
+  }
+
+  function syncResponsiveUi() {
+    if (isMobileLayout()) {
+      document.body.classList.add("sidebar-collapsed");
+      if (toggleSidebarBtn) toggleSidebarBtn.textContent = document.body.classList.contains("mobile-sidebar-open") ? "×" : "☰";
+    } else {
+      const collapsed = localStorage.getItem(UI_KEYS.sidebarCollapsed) === "1";
+      document.body.classList.remove("mobile-sidebar-open");
+      document.body.classList.toggle("sidebar-collapsed", collapsed);
+      if (toggleSidebarBtn) toggleSidebarBtn.textContent = collapsed ? "»" : "☰";
+    }
+
+    if (mapZoomInBtn?.parentElement) {
+      mapZoomInBtn.parentElement.style.display = (!legalActive && useTouchFriendlyUi()) ? "flex" : "none";
+    }
   }
 
   function normStr(s) {
@@ -383,11 +459,26 @@
     return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
-  function getCanvasPoint(evt) {
+  function getCanvasPointFromClient(clientX, clientY) {
     const rect = canvas.getBoundingClientRect();
-    const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
-    const y = (evt.clientY - rect.top) * (canvas.height / rect.height);
+    const x = (clientX - rect.left) * (canvas.width / rect.width);
+    const y = (clientY - rect.top) * (canvas.height / rect.height);
     return { x, y };
+  }
+
+  function getCanvasPoint(evt) {
+    return getCanvasPointFromClient(evt.clientX, evt.clientY);
+  }
+
+  function getTouchDistance(a, b) {
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  }
+
+  function getTouchCenter(a, b) {
+    return {
+      x: (a.clientX + b.clientX) / 2,
+      y: (a.clientY + b.clientY) / 2
+    };
   }
 
   function pointSegmentDistance(p, a, b) {
@@ -610,7 +701,7 @@
     render();
   }
 
-  function hitTest(target, p) {
+  function hitTest(target, p, routeTol = getRouteHitTolerance()) {
     if (target.shape === "circle") {
       const r = (typeof target.r === "number" && Number.isFinite(target.r)) ? target.r : 26;
       const dx = p.x - target.x;
@@ -626,7 +717,7 @@
     }
     if (target.shape === "route") {
       const d = routeMinDistance(target.points, p);
-      return d <= ROUTE_HIT_TOL;
+      return d <= routeTol;
     }
     return false;
   }
@@ -669,7 +760,7 @@
     return { area, score };
   }
 
-  function getHitCandidates(p, { includeAnswered = true } = {}) {
+  function getHitCandidates(p, { includeAnswered = true, routeTol = getRouteHitTolerance() } = {}) {
     const candidates = [];
 
     for (const t of state.targets) {
@@ -678,13 +769,13 @@
 
       if (t.shape === "route") {
         const d = routeMinDistance(t.points, p);
-        if (d <= ROUTE_HIT_TOL) {
-          candidates.push({ t, kind: "route", score: d / ROUTE_HIT_TOL });
+        if (d <= routeTol) {
+          candidates.push({ t, kind: "route", score: d / routeTol });
         }
         continue;
       }
 
-      if (!hitTest(t, p)) continue;
+      if (!hitTest(t, p, routeTol)) continue;
 
       if (t.shape === "rect") {
         const { area, score } = rectMetrics(t, p);
@@ -698,8 +789,8 @@
     return candidates;
   }
 
-  function buildPickList(p, { includeAnswered = true } = {}) {
-    const candidates = getHitCandidates(p, { includeAnswered });
+  function buildPickList(p, { includeAnswered = true, routeTol = getRouteHitTolerance() } = {}) {
+    const candidates = getHitCandidates(p, { includeAnswered, routeTol });
     if (!candidates.length) return [];
 
     const routes = candidates
@@ -722,13 +813,13 @@
     return primary.concat(secondary).map(c => c.t);
   }
 
-  function bestTargetAtPoint(p, { includeAnswered = true } = {}) {
-    const list = buildPickList(p, { includeAnswered });
+  function bestTargetAtPoint(p, { includeAnswered = true, routeTol = getRouteHitTolerance() } = {}) {
+    const list = buildPickList(p, { includeAnswered, routeTol });
     return list.length ? list[0] : null;
   }
 
-  function pickTargetAtPoint(p, { includeAnswered = true, cycle = false } = {}) {
-    const list = buildPickList(p, { includeAnswered });
+  function pickTargetAtPoint(p, { includeAnswered = true, cycle = false, routeTol = getRouteHitTolerance() } = {}) {
+    const list = buildPickList(p, { includeAnswered, routeTol });
     if (!list.length) return null;
 
     if (!cycle || list.length === 1) {
@@ -753,8 +844,8 @@
     return list[idx];
   }
 
-    function findHoverTarget(p) {
-    const hit = bestTargetAtPoint(p, { includeAnswered: true });
+    function findHoverTarget(p, { routeTol = getRouteHitTolerance() } = {}) {
+    const hit = bestTargetAtPoint(p, { includeAnswered: true, routeTol });
     return hit ? hit.id : null;
   }
 
@@ -1309,13 +1400,61 @@
     canvasWrap.classList.remove("panning");
   }
 
+  function resetMapView() {
+    if (!state.imgLoaded || !state.img) return;
+    state.zoom = 1;
+    applyCanvasDisplaySize();
+    canvasWrap.scrollLeft = 0;
+    canvasWrap.scrollTop = 0;
+    render();
+  }
+
+  function updateTouchHover(clientX, clientY) {
+    if (!state.imgLoaded || state.mode !== "quiz" || state.showHotspots) return;
+    const p = getCanvasPointFromClient(clientX, clientY);
+    const hover = findHoverTarget(p, { routeTol: getRouteHitTolerance() });
+    const t = hover ? getTargetById(hover) : null;
+
+    if (t && t.shape === "route") {
+      showRouteHoverTip(t, clientX, clientY);
+    } else {
+      hideRouteHoverTip();
+    }
+
+    if (hover !== state.hoverId) {
+      state.hoverId = hover;
+      render();
+    }
+  }
+
   // ---------- events ----------
 
   // Sidebar collapse toggle (persisted)
   toggleSidebarBtn.addEventListener("click", () => {
+    if (isMobileLayout()) {
+      const open = document.body.classList.contains("mobile-sidebar-open");
+      setSidebarCollapsed(open);
+      return;
+    }
     const collapsed = !document.body.classList.contains("sidebar-collapsed");
     setSidebarCollapsed(collapsed);
   });
+
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener("click", () => setSidebarCollapsed(true));
+  }
+
+  if (mapZoomInBtn) mapZoomInBtn.addEventListener("click", () => {
+    if (!state.imgLoaded) return;
+    setZoom(state.zoom * ZOOM_STEP_IN, window.innerWidth / 2, window.innerHeight / 2);
+  });
+
+  if (mapZoomOutBtn) mapZoomOutBtn.addEventListener("click", () => {
+    if (!state.imgLoaded) return;
+    setZoom(state.zoom * ZOOM_STEP_OUT, window.innerWidth / 2, window.innerHeight / 2);
+  });
+
+  if (mapZoomResetBtn) mapZoomResetBtn.addEventListener("click", resetMapView);
 
   // Scroll-wheel zoom on the map (works in both Quiz/Edit)
   canvasWrap.addEventListener("wheel", (e) => {
@@ -1327,11 +1466,13 @@
 
   // Drag-to-pan (quiz mode)
   window.addEventListener("mousemove", (e) => {
+    if (shouldIgnoreMouse()) return;
     if (!pan.active) return;
     updatePan(e);
   }, { passive: false });
 
   window.addEventListener("mouseup", () => {
+    if (shouldIgnoreMouse()) return;
     if (!pan.active) return;
     endPan();
   });
@@ -1343,6 +1484,7 @@
 
   // Re-fit canvas display on resize (keeps scroll position roughly stable)
   window.addEventListener("resize", () => {
+    syncResponsiveUi();
     const prevScale = (state.fitScale * state.zoom) || 1;
     applyCanvasDisplaySize();
     const nextScale = (state.fitScale * state.zoom) || 1;
@@ -1385,6 +1527,9 @@
 
   function setMapUiVisible(visible) {
     const ids = ["modeCard","mapStatusCard","scoreCard","editCard","exportTargets","importTargets","importBtn","targetsList","revealAll","hideAll","clearProgress"];
+    if (mapZoomInBtn?.parentElement) {
+      mapZoomInBtn.parentElement.style.display = visible && useTouchFriendlyUi() ? "flex" : "none";
+    }
     // cards
     const modeCard = document.getElementById("modeCard");
     const mapStatusCard = document.getElementById("mapStatusCard");
@@ -1443,6 +1588,7 @@ async function switchQuiz(nextId) {
 
     activeQuizId = nextId;
     setActiveTabUI();
+    if (isMobileLayout()) setSidebarCollapsed(true);
 
     // HARD CLEAR so old hotspots never render on the new map
     hideRouteHoverTip();
@@ -1497,6 +1643,7 @@ async function switchQuiz(nextId) {
     try { saveTargets(); } catch {}
     try { saveProgress(); } catch {}
     showLegalTab();
+    if (isMobileLayout()) setSidebarCollapsed(true);
     try { await ensureLegalReady(); } catch (e) {
       if (legalFeedbackEl) legalFeedbackEl.textContent = String(e?.message || e);
     }
@@ -1644,6 +1791,7 @@ async function switchQuiz(nextId) {
 
   // Hover highlight in quiz mode (routes highlight on hover + tooltip near cursor)
   canvas.addEventListener("mousemove", (evt) => {
+    if (shouldIgnoreMouse()) return;
     if (!state.imgLoaded) return;
 
     if (pan.active) {
@@ -1660,7 +1808,7 @@ async function switchQuiz(nextId) {
     }
 
     const p = getCanvasPoint(evt);
-    const hover = findHoverTarget(p);
+    const hover = findHoverTarget(p, { routeTol: getRouteHitTolerance() });
 
     // Tooltip follows cursor smoothly for ROUTES only
     const t = hover ? getTargetById(hover) : null;
@@ -1678,6 +1826,7 @@ async function switchQuiz(nextId) {
   });
 
   canvas.addEventListener("mouseleave", () => {
+    if (shouldIgnoreMouse()) return;
     if (state.hoverId) {
       state.hoverId = null;
       render();
@@ -1686,6 +1835,7 @@ async function switchQuiz(nextId) {
   });
 
   canvas.addEventListener("mousedown", (evt) => {
+    if (shouldIgnoreMouse()) return;
     if (!state.imgLoaded) return;
 
     if (state.mode === "edit" && state.tool === "rect") {
@@ -1698,12 +1848,13 @@ async function switchQuiz(nextId) {
     // Quiz mode: click-drag to pan the map (only when starting on empty space)
     if (state.mode === "quiz") {
       const p = getCanvasPoint(evt);
-      const hit = bestTargetAtPoint(p, { includeAnswered: true });
+      const hit = bestTargetAtPoint(p, { includeAnswered: true, routeTol: getRouteHitTolerance() });
       if (!hit) beginPan(evt);
     }
   });
 
   canvas.addEventListener("mousemove", (evt) => {
+    if (shouldIgnoreMouse()) return;
     if (!state.rectDrag) return;
     state.rectDrag.end = getCanvasPoint(evt);
     render();
@@ -1711,6 +1862,7 @@ async function switchQuiz(nextId) {
 
   // Double-click finishes a route draft (edit mode)
   canvas.addEventListener("dblclick", (evt) => {
+    if (shouldIgnoreMouse()) return;
     if (!state.imgLoaded) return;
     if (state.mode === "edit" && state.tool === "route") {
       finishRouteDraft();
@@ -1718,6 +1870,7 @@ async function switchQuiz(nextId) {
   });
 
   canvas.addEventListener("mouseup", (evt) => {
+    if (shouldIgnoreMouse()) return;
     if (!state.imgLoaded) return;
     // If we were dragging to pan, do not treat this as a click-to-answer
     if (state.mode === "quiz" && pan.active) {
@@ -1786,12 +1939,157 @@ async function switchQuiz(nextId) {
     if (state.mode === "quiz") {
       // Overlap-safe pick. Answered hotspots are click-through.
       // Hold Shift and click repeatedly to cycle through overlapping hotspots.
-      const hit = pickTargetAtPoint(p, { includeAnswered: false, cycle: evt.shiftKey });
+      const hit = pickTargetAtPoint(p, { includeAnswered: false, cycle: evt.shiftKey, routeTol: getRouteHitTolerance() });
       if (!hit) return;
       askAnswerForTarget(hit);
     }
   });
 
+
+
+  canvas.addEventListener("touchstart", (evt) => {
+    if (!state.imgLoaded) return;
+    noteTouchInteraction();
+
+    if (evt.touches.length >= 2) {
+      const a = evt.touches[0];
+      const b = evt.touches[1];
+      touchNav.active = true;
+      touchNav.moved = true;
+      touchNav.pinchActive = true;
+      touchNav.pinchStartDist = Math.max(1, getTouchDistance(a, b));
+      touchNav.pinchStartZoom = state.zoom;
+      state.hoverId = null;
+      hideRouteHoverTip();
+      render();
+      evt.preventDefault();
+      return;
+    }
+
+    const touch = evt.touches[0];
+    if (!touch) return;
+
+    touchNav.active = true;
+    touchNav.moved = false;
+    touchNav.pinchActive = false;
+    touchNav.startClientX = touch.clientX;
+    touchNav.startClientY = touch.clientY;
+    touchNav.startScrollLeft = canvasWrap.scrollLeft;
+    touchNav.startScrollTop = canvasWrap.scrollTop;
+
+    if (state.mode === "quiz" && !state.showHotspots) {
+      updateTouchHover(touch.clientX, touch.clientY);
+    }
+
+    evt.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener("touchmove", (evt) => {
+    if (!state.imgLoaded) return;
+    noteTouchInteraction();
+
+    if (evt.touches.length >= 2) {
+      const a = evt.touches[0];
+      const b = evt.touches[1];
+      const center = getTouchCenter(a, b);
+      if (!touchNav.pinchActive) {
+        touchNav.pinchActive = true;
+        touchNav.pinchStartDist = Math.max(1, getTouchDistance(a, b));
+        touchNav.pinchStartZoom = state.zoom;
+      }
+      const dist = Math.max(1, getTouchDistance(a, b));
+      const factor = dist / touchNav.pinchStartDist;
+      setZoom(touchNav.pinchStartZoom * factor, center.x, center.y);
+      touchNav.active = true;
+      touchNav.moved = true;
+      state.hoverId = null;
+      hideRouteHoverTip();
+      evt.preventDefault();
+      return;
+    }
+
+    const touch = evt.touches[0];
+    if (!touch || !touchNav.active) return;
+
+    const dx = touch.clientX - touchNav.startClientX;
+    const dy = touch.clientY - touchNav.startClientY;
+
+    if (!touchNav.moved && (Math.abs(dx) + Math.abs(dy) >= PAN_THRESHOLD_PX + 2)) {
+      touchNav.moved = true;
+    }
+
+    if (touchNav.moved) {
+      canvasWrap.scrollLeft = touchNav.startScrollLeft - dx;
+      canvasWrap.scrollTop = touchNav.startScrollTop - dy;
+      state.hoverId = null;
+      hideRouteHoverTip();
+      render();
+    } else if (state.mode === "quiz" && !state.showHotspots) {
+      updateTouchHover(touch.clientX, touch.clientY);
+    }
+
+    evt.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener("touchend", (evt) => {
+    noteTouchInteraction();
+
+    if (touchNav.pinchActive) {
+      if (evt.touches.length >= 2) {
+        evt.preventDefault();
+        return;
+      }
+      touchNav.pinchActive = false;
+    }
+
+    const touch = evt.changedTouches[0];
+    if (!touch) {
+      touchNav.active = false;
+      touchNav.moved = false;
+      hideRouteHoverTip();
+      return;
+    }
+
+    const wasTap = touchNav.active && !touchNav.moved;
+    touchNav.active = false;
+    touchNav.moved = false;
+
+    if (state.mode === "quiz") {
+      if (wasTap && !state.showHotspots) {
+        const p = getCanvasPointFromClient(touch.clientX, touch.clientY);
+        const hit = pickTargetAtPoint(p, { includeAnswered: false, cycle: false, routeTol: getRouteHitTolerance() });
+        if (hit) {
+          state.hoverId = hit.id;
+          const t = getTargetById(hit.id);
+          if (t && t.shape === "route") {
+            showRouteHoverTip(t, touch.clientX, touch.clientY);
+          }
+          render();
+          askAnswerForTarget(hit);
+        } else {
+          state.hoverId = null;
+          hideRouteHoverTip();
+          render();
+        }
+      } else {
+        state.hoverId = null;
+        hideRouteHoverTip();
+        render();
+      }
+    }
+
+    evt.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener("touchcancel", () => {
+    noteTouchInteraction();
+    touchNav.active = false;
+    touchNav.moved = false;
+    touchNav.pinchActive = false;
+    state.hoverId = null;
+    hideRouteHoverTip();
+    render();
+  }, { passive: false });
   
   async function loadLegalDataset() {
     // Prefer imported dataset already loaded
@@ -2016,6 +2314,7 @@ async function switchQuiz(nextId) {
 
     // Restore sidebar state
     setSidebarCollapsed(localStorage.getItem(UI_KEYS.sidebarCollapsed) === "1");
+    syncResponsiveUi();
 
     refreshUI();
     renderTargetsList();
