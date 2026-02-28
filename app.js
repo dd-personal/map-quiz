@@ -136,6 +136,12 @@
     } catch {}
   }
 
+  function clearLegalCompletedSet() {
+    try {
+      localStorage.removeItem(LEGAL_STORAGE_KEY);
+    } catch {}
+  }
+
   function resetLegalAttemptState() {
     legalDraftAnswers = [];
     legalLastCheckResults = [];
@@ -201,6 +207,7 @@
   const legalDifficultySel = document.getElementById("legalDifficulty");
   const legalNextBtn = document.getElementById("legalNextBtn");
   const legalRevealBtn = document.getElementById("legalRevealBtn");
+  const legalClearProgressBtn = document.getElementById("legalClearProgressBtn");
   const legalExportBtn = document.getElementById("legalExportBtn");
   const legalImportFile = document.getElementById("legalImportFile");
   const legalImportBtn = document.getElementById("legalImportBtn");
@@ -1479,6 +1486,16 @@ async function switchQuiz(nextId) {
   if (legalRevealBtn) legalRevealBtn.addEventListener("click", () => {
     // Reveal all should also show Summary/Definition under title
     revealAllLegal();
+  });
+
+  if (legalClearProgressBtn) legalClearProgressBtn.addEventListener("click", async () => {
+    clearLegalCompletedSet();
+    legalRevealAll = false;
+    legalSolved = false;
+    legalCurrent = null;
+    resetLegalAttemptState();
+    if (legalFeedbackEl) legalFeedbackEl.textContent = "Legal quiz progress cleared.";
+    await ensureLegalReady();
   });
 
   if (legalSubmitBtn) legalSubmitBtn.addEventListener("click", () => {
