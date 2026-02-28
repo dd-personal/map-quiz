@@ -1,14 +1,19 @@
 (() => {
   // ---- CONFIG ----
   const QUIZZES = {
-    map1: { id: "map1", tabId: "tabMap1", label: "Map Quiz", mapFile: "map.png", hotspotsFile: "hotspots.json" },
-    map2: { id: "map2", tabId: "tabMap2", label: "Beat/Radio Quiz", mapFile: "map2.png", hotspotsFile: "hotspots2.json" },
-    // Add your new map image + hotspot file here
-    map3: { id: "map3", tabId: "tabMap3", label: "Map 3", mapFile: "map3.png", hotspotsFile: "hotspots3.json" }
+    map1: { id: "map1", type: "map", tabId: "tabMap1", label: "Map Quiz", mapFile: "map.png", hotspotsFile: "hotspots.json" },
+    map2: { id: "map2", type: "map", tabId: "tabMap2", label: "Beat Quiz", mapFile: "map2.png", hotspotsFile: "hotspots2.json" },
+    map3: { id: "map3", type: "map", tabId: "tabMap3", label: "Radio Quiz", mapFile: "map3.png", hotspotsFile: "hotspots3.json" },
+    legal1: { id: "legal1", type: "legal", tabId: "tabLegal", label: "Legal Elements", dataFile: "legal_elements.json" }
   };
   let activeQuizId = "map1";
-  const mapUrl = () => new URL(QUIZZES[activeQuizId].mapFile, window.location.href).toString();
-  const hotspotsUrl = () => new URL(QUIZZES[activeQuizId].hotspotsFile, window.location.href).toString();
+  const activeQuiz = () => QUIZZES[activeQuizId];
+  const isMapQuiz = () => activeQuiz().type === "map";
+  const isLegalQuiz = () => activeQuiz().type === "legal";
+  const assetUrl = (file) => new URL(file, document.baseURI).toString();
+  const mapUrl = () => isMapQuiz() ? assetUrl(activeQuiz().mapFile) : "";
+  const hotspotsUrl = () => isMapQuiz() ? assetUrl(activeQuiz().hotspotsFile) : "";
+  const legalDataUrl = () => isLegalQuiz() ? assetUrl(activeQuiz().dataFile) : "";
 
 
   // How close the cursor must be to a route to hover/highlight/click it (in pixels on the canvas)
@@ -19,6 +24,10 @@
 
   const UI_KEYS = {
     sidebarCollapsed: "mapQuiz.sidebarCollapsed.v1"
+  };
+
+  const LEGAL_UI_KEYS = {
+    difficulty: "mapQuiz.legalDifficulty.v1"
   };
 
   // Zoom behavior (scroll wheel)
@@ -57,7 +66,13 @@
     rectDrag: null,
     routeDraft: null,      // { points: [{x,y},...]} while drawing a route in edit mode
     zoom: 1,               // scroll-wheel zoom multiplier
-    fitScale: 1            // auto-fit scale based on viewport
+    fitScale: 1,           // auto-fit scale based on viewport
+    legalRecords: [],
+    legalCurrentId: null,
+    legalDifficulty: 2,
+    legalReveal: false,
+    legalElementMasks: [],
+    legalLastFeedback: ""
   };
 
   // ---------- dom ----------
@@ -72,7 +87,28 @@
   const tabMap1Btn = document.getElementById("tabMap1");
   const tabMap2Btn = document.getElementById("tabMap2");
   const tabMap3Btn = document.getElementById("tabMap3");
+  const tabLegalBtn = document.getElementById("tabLegal");
 
+  const modeCard = document.getElementById("modeCard");
+  const mapStatusCard = document.getElementById("mapStatusCard");
+  const scoreCard = document.getElementById("scoreCard");
+  const legalCard = document.getElementById("legalCard");
+  const legalQuizPanel = document.getElementById("legalQuizPanel");
+  const legalDifficultySelect = document.getElementById("legalDifficulty");
+  const legalNextBtn = document.getElementById("legalNextBtn");
+  const legalRevealBtn = document.getElementById("legalRevealBtn");
+  const legalExportBtn = document.getElementById("legalExportBtn");
+  const legalImportFile = document.getElementById("legalImportFile");
+  const legalImportBtn = document.getElementById("legalImportBtn");
+  const legalDatasetLine = document.getElementById("legalDatasetLine");
+  const legalProgressLine = document.getElementById("legalProgressLine");
+  const legalCrimeTitle = document.getElementById("legalCrimeTitle");
+  const legalCrimeStatute = document.getElementById("legalCrimeStatute");
+  const legalCrimeDefinition = document.getElementById("legalCrimeDefinition");
+  const legalElementsList = document.getElementById("legalElementsList");
+  const legalSubmitBtn = document.getElementById("legalSubmitBtn");
+  const legalAnotherBtn = document.getElementById("legalAnotherBtn");
+  const legalFeedback = document.getElementById("legalFeedback");
 
   const imgStatus = document.getElementById("imgStatus");
   const modePill = document.getElementById("modePill");
@@ -202,6 +238,263 @@
     return (s||"").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+  function legalRecordLabel(record) {
+    if (!record) return "";
+    const statute = (record.statute || record.id || "").trim();
+    const title = (record.title || "").trim();
+    return [statute, title].filter(Boolean).join(" - ");
+  }
+
+  function normalizeLegalRecords(arr) {
+    const input = Array.isArray(arr) ? arr : [];
+    return input
+      .map((record, index) => {
+        const elements = Array.isArray(record?.elements)
+          ? record.elements.map(x => String(x || "").trim()).filter(Boolean)
+          : [];
+        if (!elements.length) return null;
+        const statute = String(record?.statute || record?.id || `Statute ${index + 1}`).trim();
+        return {
+          id: String(record?.id || statute || uid()),
+          statute,
+          title: String(record?.title || "").trim(),
+          definition: String(record?.definition || "").trim(),
+          aliases: Array.isArray(record?.aliases) ? record.aliases.map(x => String(x || "").trim()).filter(Boolean) : [],
+          elements
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function saveLegalRecords() {
+    localStorage.setItem(lsKey("legalRecords"), JSON.stringify(state.legalRecords));
+  }
+
+  function getCurrentLegalRecord() {
+    if (!state.legalRecords.length) return null;
+    return state.legalRecords.find(r => r.id === state.legalCurrentId) || state.legalRecords[0] || null;
+  }
+
+  function pickNextLegalRecord({ preferUnanswered = true } = {}) {
+    if (!state.legalRecords.length) return null;
+    const pool = preferUnanswered
+      ? state.legalRecords.filter(r => !state.answeredIds.has(r.id))
+      : [];
+    const candidates = pool.length ? pool : state.legalRecords;
+    const currentId = state.legalCurrentId;
+    const withoutCurrent = candidates.filter(r => r.id !== currentId);
+    const finalPool = withoutCurrent.length ? withoutCurrent : candidates;
+    return finalPool[Math.floor(Math.random() * finalPool.length)] || null;
+  }
+
+  const LEGAL_STOP_WORDS = new Set([
+    "a","an","and","are","as","at","be","been","being","by","for","from","has","have","had","he","her","hers","him","his",
+    "in","into","is","it","its","itself","of","on","onto","or","that","the","their","theirs","them","themselves","they",
+    "this","to","toward","was","were","while","with","within","without","would","shall","should","can","could","may","might",
+    "must","will"
+  ]);
+
+  function buildLegalMask(text, difficulty, options = {}) {
+    const src = String(text || "");
+    const fullElement = !!options.fullElement;
+    const tokens = src.match(/\w+|\s+|[^\w\s]+/g) || [];
+    const wordIndexes = [];
+    const candidateIndexes = [];
+
+    tokens.forEach((token, idx) => {
+      if (/^\w+$/.test(token)) {
+        wordIndexes.push(idx);
+        const lower = token.toLowerCase();
+        if (!LEGAL_STOP_WORDS.has(lower)) candidateIndexes.push(idx);
+      }
+    });
+
+    const hidden = new Set();
+    if (fullElement) {
+      for (const idx of wordIndexes) hidden.add(idx);
+    } else if (candidateIndexes.length) {
+      const desiredByDifficulty = {
+        1: Math.min(candidateIndexes.length, candidateIndexes.length <= 4 ? 1 : 2),
+        2: Math.min(candidateIndexes.length, Math.max(2, Math.ceil(candidateIndexes.length * 0.55)))
+      };
+      const desired = Math.min(candidateIndexes.length, desiredByDifficulty[difficulty] || 1);
+      const scored = candidateIndexes
+        .map((idx, pos) => {
+          const token = tokens[idx];
+          const midpointBias = Math.abs(((pos + 1) / (candidateIndexes.length + 1)) - 0.5);
+          return { idx, token, score: token.length - midpointBias };
+        })
+        .sort((a, b) => (b.score - a.score) || (a.idx - b.idx))
+        .slice(0, desired)
+        .sort((a, b) => a.idx - b.idx);
+
+      for (const item of scored) hidden.add(item.idx);
+    } else if (wordIndexes.length) {
+      hidden.add(wordIndexes[0]);
+    }
+
+    const missingWords = [];
+    const html = tokens.map((token, idx) => {
+      if (!hidden.has(idx)) return escapeHtml(token);
+      if (/^\w+$/.test(token)) missingWords.push(token);
+      return `<span class="legalBlank">${"_".repeat(Math.max(4, Math.min(token.length + 1, 14)))}</span>`;
+    }).join("");
+
+    return {
+      html,
+      missingWords,
+      expected: fullElement ? src.trim() : missingWords.join(" ").trim(),
+      hiddenCount: missingWords.length,
+      fullElement
+    };
+  }
+
+  function setLegalDifficulty(value) {
+    state.legalDifficulty = clamp(parseInt(value || "2", 10) || 2, 1, 3);
+    localStorage.setItem(LEGAL_UI_KEYS.difficulty, String(state.legalDifficulty));
+    state.legalReveal = false;
+    state.legalLastFeedback = "";
+    renderLegalQuiz();
+    refreshUI();
+  }
+
+  function renderLegalQuiz() {
+    if (!isLegalQuiz()) return;
+    const record = getCurrentLegalRecord();
+
+    if (!record) {
+      legalCrimeTitle.textContent = "No legal elements loaded";
+      legalCrimeStatute.textContent = "Add legal_elements.json";
+      legalCrimeDefinition.textContent = "Load a JSON file with crimes/statutes, summaries, and their elements.";
+      legalCrimeDefinition.classList.add("isHidden");
+      legalElementsList.innerHTML = `<div class="legalEmpty">No records found. Import a JSON file or place legal_elements.json next to index.html.</div>`;
+      legalFeedback.textContent = "";
+      state.legalElementMasks = [];
+      return;
+    }
+
+    legalCrimeTitle.textContent = record.title || "Untitled statute";
+    legalCrimeStatute.textContent = record.statute || record.id || "Statute";
+
+    const solved = state.answeredIds.has(record.id);
+    const revealOrSolved = solved || state.legalReveal;
+    legalCrimeDefinition.textContent = revealOrSolved
+      ? (record.definition || "")
+      : "Definition hidden until all elements are answered correctly.";
+    legalCrimeDefinition.classList.toggle("isHidden", !revealOrSolved);
+
+    state.legalElementMasks = record.elements.map((element, idx) => {
+      const fullElement = state.legalDifficulty === 3;
+      const mask = buildLegalMask(element, state.legalDifficulty, { fullElement });
+      const expectedLabel = mask.hiddenCount === 1 ? "missing word" : "missing words";
+      const answerHint = mask.fullElement ? "Type the full element." : `Type the ${expectedLabel} only, in order.`;
+      return { ...mask, element, idx, answerHint };
+    });
+
+    legalElementsList.innerHTML = state.legalElementMasks.map((mask, idx) => {
+      const promptHtml = revealOrSolved ? escapeHtml(mask.element) : mask.html;
+      const inputDisabled = revealOrSolved ? "disabled" : "";
+      const placeholder = revealOrSolved
+        ? (solved ? "Completed" : "Answer revealed")
+        : (mask.fullElement ? "Enter full element" : "Enter missing words");
+      const helperLabel = revealOrSolved
+        ? (solved ? "Completed element" : "Revealed element")
+        : mask.answerHint;
+      return `
+      <div class="legalElementCard">
+        <div class="legalElementHeader">Element ${idx + 1}</div>
+        <div class="legalPrompt">${promptHtml}</div>
+        <label class="legalInputLabel" for="legalAnswer${idx}">${escapeHtml(helperLabel)}</label>
+        <input id="legalAnswer${idx}" class="legalAnswerInput" type="text" autocomplete="off" ${inputDisabled} placeholder="${placeholder}" />
+        ${state.legalReveal ? `<div class="legalAnswerKey">Answer: ${escapeHtml(mask.element)}</div>` : ""}
+      </div>`;
+    }).join("");
+
+    legalFeedback.textContent = state.legalLastFeedback || "";
+  }
+
+  function scoreLegalAnswers() {
+    const record = getCurrentLegalRecord();
+    if (!record || state.legalReveal) return;
+
+    if (!state.legalElementMasks.length) renderLegalQuiz();
+    let correctCount = 0;
+    const feedbackBits = [];
+
+    state.legalElementMasks.forEach((mask, idx) => {
+      const input = document.getElementById(`legalAnswer${idx}`);
+      const typed = normStr(input?.value || "");
+      const expected = normStr(mask.expected || mask.element);
+      state.stats.attempted += 1;
+
+      const ok = typed === expected;
+      if (ok) {
+        correctCount += 1;
+        state.stats.correct += 1;
+        if (input) input.classList.remove("badInput");
+        if (input) input.classList.add("goodInput");
+      } else {
+        if (input) input.classList.remove("goodInput");
+        if (input) input.classList.add("badInput");
+        feedbackBits.push(`Element ${idx + 1}: ${mask.expected || mask.element}`);
+      }
+    });
+
+    state.attemptsById[record.id] = (state.attemptsById[record.id] || 0) + 1;
+
+    if (correctCount === state.legalElementMasks.length) {
+      state.answeredIds.add(record.id);
+      state.legalLastFeedback = `✅ Correct. You completed ${legalRecordLabel(record)}.`;
+    } else {
+      state.legalLastFeedback = `❌ ${correctCount}/${state.legalElementMasks.length} element${state.legalElementMasks.length === 1 ? "" : "s"} correct.` + (feedbackBits.length ? ` Missing pieces: ${feedbackBits.join(" • ")}` : "");
+    }
+
+    saveProgress();
+    renderLegalQuiz();
+    refreshUI();
+    if (legalFeedback) legalFeedback.textContent = state.legalLastFeedback;
+  }
+
+  function revealLegalAnswers() {
+    state.legalReveal = true;
+    state.legalLastFeedback = "Answers and definition revealed for the current statute.";
+    saveProgress();
+    refreshUI();
+    renderLegalQuiz();
+  }
+
+  function showAnotherLegalRecord({ preferUnanswered = true } = {}) {
+    const next = pickNextLegalRecord({ preferUnanswered });
+    if (!next) return;
+    state.legalCurrentId = next.id;
+    state.legalReveal = false;
+    state.legalLastFeedback = "";
+    saveProgress();
+    renderLegalQuiz();
+    refreshUI();
+  }
+
+  async function loadLegalRecordsFromRepo(url) {
+    try {
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const arr = await res.json();
+      const records = normalizeLegalRecords(arr);
+      if (!records.length) throw new Error("No valid legal records found.");
+      state.legalRecords = records;
+      saveLegalRecords();
+      if (!state.legalCurrentId || !state.legalRecords.some(r => r.id === state.legalCurrentId)) {
+        state.legalCurrentId = state.legalRecords[0].id;
+      }
+      renderLegalQuiz();
+      refreshUI();
+    } catch (e) {
+      console.warn(`Could not load ${activeQuiz().dataFile}; falling back to localStorage.`, e);
+      renderLegalQuiz();
+      refreshUI();
+    }
+  }
+
   function getCanvasPoint(evt) {
     const rect = canvas.getBoundingClientRect();
     const x = (evt.clientX - rect.left) * (canvas.width / rect.width);
@@ -303,6 +596,7 @@
   }
 
   function saveTargets() {
+    if (!isMapQuiz()) return;
     localStorage.setItem(lsKey("targets"), JSON.stringify(state.targets));
   }
 
@@ -312,20 +606,35 @@
       answeredIds: Array.from(state.answeredIds),
       attemptsById: state.attemptsById
     };
+    if (isLegalQuiz()) {
+      payload.legalCurrentId = state.legalCurrentId;
+      payload.legalReveal = state.legalReveal;
+      payload.legalLastFeedback = state.legalLastFeedback;
+    }
     localStorage.setItem(lsKey("progress"), JSON.stringify(payload));
   }
 
   function loadFromStorage() {
     try {
-      const t = localStorage.getItem(lsKey("targets"));
-      if (t) state.targets = normalizeTargets(JSON.parse(t));
+      if (isMapQuiz()) {
+        const t = localStorage.getItem(lsKey("targets"));
+        state.targets = t ? normalizeTargets(JSON.parse(t)) : [];
+      } else {
+        const records = localStorage.getItem(lsKey("legalRecords"));
+        state.legalRecords = records ? normalizeLegalRecords(JSON.parse(records)) : [];
+      }
 
       const p = localStorage.getItem(lsKey("progress"));
       if (p) {
         const payload = JSON.parse(p);
-        state.stats = payload.stats || state.stats;
+        state.stats = payload.stats || { correct: 0, attempted: 0 };
         state.answeredIds = new Set(payload.answeredIds || []);
         state.attemptsById = payload.attemptsById || {};
+        if (isLegalQuiz()) {
+          state.legalCurrentId = payload.legalCurrentId || state.legalCurrentId;
+          state.legalReveal = !!payload.legalReveal;
+          state.legalLastFeedback = payload.legalLastFeedback || "";
+        }
       }
     } catch (e) {
       console.warn("Storage load error:", e);
@@ -336,6 +645,13 @@
     state.answeredIds = new Set();
     state.attemptsById = {};
     state.stats = { correct: 0, attempted: 0 };
+    if (isLegalQuiz()) {
+      state.legalReveal = false;
+      state.legalLastFeedback = "";
+      const first = state.legalRecords[0];
+      state.legalCurrentId = first ? first.id : null;
+      renderLegalQuiz();
+    }
     saveProgress();
     render();
     refreshUI();
@@ -343,6 +659,7 @@
   }
 
   function loadLockedImage(url) {
+    if (!isMapQuiz()) return;
     state.imgLoading = true;
     state.imgLoadError = null;
     state.imgLoaded = false;
@@ -387,6 +704,7 @@
   }
 
   async function loadHotspotsFromRepo(url) {
+    if (!isMapQuiz()) return;
     try {
       const res = await fetch(url, { cache: "no-store" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -399,11 +717,18 @@
         render();
       }
     } catch (e) {
-      console.warn(`Could not load ${QUIZZES[activeQuizId].hotspotsFile}; falling back to localStorage.`, e);
+      console.warn(`Could not load ${activeQuiz().hotspotsFile}; falling back to localStorage.`, e);
     }
   }
 
   function setMode(mode) {
+    if (isLegalQuiz()) {
+      state.mode = "quiz";
+      refreshUI();
+      render();
+      return;
+    }
+
     state.mode = mode;
     hideRouteHoverTip();
 
@@ -677,6 +1002,11 @@
   }
 
   function renderTargetsList() {
+    if (!targetsList) return;
+    if (!isMapQuiz()) {
+      targetsList.innerHTML = `<div style="padding:10px;" class="muted">Map hotspot editing is available on the map tabs.</div>`;
+      return;
+    }
     targetsList.innerHTML = "";
     if (!state.targets.length) {
       targetsList.innerHTML = `<div style="padding:10px;" class="muted">No hotspots yet. Switch to Edit mode and add some.</div>`;
@@ -698,11 +1028,21 @@
   }
 
   function refreshUI() {
-    document.body.classList.toggle("mode-quiz", state.mode === "quiz");
+    const legalActive = isLegalQuiz();
+    document.body.classList.toggle("mode-quiz", state.mode === "quiz" && !legalActive);
+    document.body.classList.toggle("legal-active", legalActive);
+
+    if (canvasWrap) canvasWrap.style.display = legalActive ? "none" : "block";
+    if (legalQuizPanel) legalQuizPanel.style.display = legalActive ? "block" : "none";
+    if (modeCard) modeCard.style.display = legalActive ? "none" : "block";
+    if (mapStatusCard) mapStatusCard.style.display = legalActive ? "none" : "block";
+    if (editCard) editCard.style.display = (!legalActive && state.mode === "edit") ? "block" : "none";
+    if (legalCard) legalCard.style.display = legalActive ? "block" : "none";
+    if (revealAllBtn) revealAllBtn.style.display = legalActive ? "none" : "";
+    if (hideAllBtn) hideAllBtn.style.display = legalActive ? "none" : "";
 
     modePill.textContent = "Mode: " + (state.mode === "quiz" ? "Quiz" : "Edit");
     toggleModeBtn.textContent = state.mode === "quiz" ? "Switch to Edit" : "Switch to Quiz";
-    editCard.style.display = state.mode === "edit" ? "block" : "none";
 
     const toolName = state.tool === "circle" ? "Circle" : (state.tool === "rect" ? "Rect" : "Route");
     toolPill.textContent = "Tool: " + toolName;
@@ -724,10 +1064,24 @@
     finishRouteBtn.disabled = !(state.mode === "edit" && state.tool === "route" && draftPts >= 2);
     cancelRouteBtn.disabled = !(state.mode === "edit" && state.tool === "route" && draftPts >= 1);
 
-    // If selected is route, radius doesn’t apply
     const sel = getTargetById(state.selectedId);
     if (sel && sel.shape !== "circle") radiusInput.disabled = true;
     if (sel && sel.shape === "circle") radiusInput.disabled = false;
+
+    if (legalDifficultySelect) legalDifficultySelect.value = String(state.legalDifficulty);
+    if (legalRevealBtn) legalRevealBtn.textContent = state.legalReveal ? "Answers Shown" : "Reveal All";
+    if (legalDatasetLine) {
+      legalDatasetLine.textContent = state.legalRecords.length
+        ? `${state.legalRecords.length} statutes loaded from ${activeQuiz().dataFile || "legal data"}`
+        : "No legal dataset loaded yet.";
+    }
+    if (legalProgressLine) {
+      const solved = state.answeredIds.size;
+      const total = state.legalRecords.length;
+      legalProgressLine.textContent = total
+        ? `${solved} of ${total} statutes completed`
+        : "Import a JSON file or place legal_elements.json in the same GitHub Pages folder as index.html.";
+    }
   }
 
   function drawRoute(points, style) {
@@ -948,6 +1302,7 @@
   }
 
   function render() {
+    if (isLegalQuiz()) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Background
@@ -1193,31 +1548,42 @@
       tabMap3Btn.classList.toggle("active", on);
       tabMap3Btn.setAttribute("aria-selected", on ? "true" : "false");
     }
+    if (tabLegalBtn) {
+      const on = activeQuizId === "legal1";
+      tabLegalBtn.classList.toggle("active", on);
+      tabLegalBtn.setAttribute("aria-selected", on ? "true" : "false");
+    }
   }
 
   async function switchQuiz(nextId) {
     if (!QUIZZES[nextId] || nextId === activeQuizId) return;
 
-    try { saveTargets(); } catch {}
+    try {
+      if (isMapQuiz()) saveTargets();
+      if (isLegalQuiz()) saveLegalRecords();
+    } catch {}
     try { saveProgress(); } catch {}
 
     activeQuizId = nextId;
     setActiveTabUI();
 
-    // HARD CLEAR so old hotspots never render on the new map
     hideRouteHoverTip();
     state.hoverId = null;
     state.selectedId = null;
     state.rectDrag = null;
     state.routeDraft = null;
     state.targets = [];
+    state.legalRecords = [];
+    state.legalCurrentId = null;
+    state.legalReveal = false;
+    state.legalElementMasks = [];
+    state.legalLastFeedback = "";
 
-    // reset per-map quiz progress (will be reloaded below)
     state.stats = { correct: 0, attempted: 0 };
     state.answeredIds = new Set();
     state.attemptsById = {};
 
-    state.showHotspots = (state.mode === "edit");
+    state.showHotspots = (state.mode === "edit") && isMapQuiz();
 
     state.zoom = 1;
     canvasWrap.scrollLeft = 0;
@@ -1225,16 +1591,31 @@
 
     state.img = null;
     state.imgLoaded = false;
-    state.imgLoading = true;
+    state.imgLoading = isMapQuiz();
     state.imgLoadError = null;
-    if (imgStatus) imgStatus.textContent = "Loading map… please wait";
 
-    renderTargetsList();
-    refreshUI();
-    render();
+    if (imgStatus) {
+      imgStatus.textContent = isMapQuiz() ? "Loading map… please wait" : "Legal quiz loaded";
+    }
 
-    // load per-map local cache (if any), then fetch repo hotspots
     loadFromStorage();
+
+    if (isLegalQuiz()) {
+      if (state.mode !== "quiz") state.mode = "quiz";
+      if (!state.legalRecords.length) {
+        await loadLegalRecordsFromRepo(legalDataUrl());
+      } else {
+        if (!state.legalCurrentId || !state.legalRecords.some(r => r.id === state.legalCurrentId)) {
+          state.legalCurrentId = (state.legalRecords[0] || {}).id || null;
+        }
+        renderLegalQuiz();
+      }
+      refreshUI();
+      renderTargetsList();
+      render();
+      return;
+    }
+
     renderTargetsList();
     refreshUI();
     render();
@@ -1252,6 +1633,7 @@
   if (tabMap1Btn) tabMap1Btn.addEventListener("click", () => { switchQuiz("map1"); });
   if (tabMap2Btn) tabMap2Btn.addEventListener("click", () => { switchQuiz("map2"); });
   if (tabMap3Btn) tabMap3Btn.addEventListener("click", () => { switchQuiz("map3"); });
+  if (tabLegalBtn) tabLegalBtn.addEventListener("click", () => { switchQuiz("legal1"); });
 
   document.addEventListener("keydown", (e) => {
     // Don't interfere while typing in fields
@@ -1324,6 +1706,60 @@
       importTargetsFile.value = "";
     }
   });
+
+  if (legalDifficultySelect) {
+    legalDifficultySelect.addEventListener("change", (e) => setLegalDifficulty(e.target.value));
+  }
+
+  if (legalNextBtn) legalNextBtn.addEventListener("click", () => showAnotherLegalRecord({ preferUnanswered: true }));
+  if (legalAnotherBtn) legalAnotherBtn.addEventListener("click", () => showAnotherLegalRecord({ preferUnanswered: false }));
+  if (legalRevealBtn) legalRevealBtn.addEventListener("click", revealLegalAnswers);
+  if (legalSubmitBtn) legalSubmitBtn.addEventListener("click", scoreLegalAnswers);
+  if (legalElementsList) {
+    legalElementsList.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") scoreLegalAnswers();
+    });
+  }
+
+  if (legalExportBtn) {
+    legalExportBtn.addEventListener("click", () => {
+      const payload = JSON.stringify(state.legalRecords, null, 2);
+      const blob = new Blob([payload], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = activeQuiz().dataFile || "legal_elements.json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  }
+
+  if (legalImportBtn) legalImportBtn.addEventListener("click", () => legalImportFile?.click());
+
+  if (legalImportFile) {
+    legalImportFile.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      try {
+        const text = await file.text();
+        const arr = JSON.parse(text);
+        const records = normalizeLegalRecords(arr);
+        if (!records.length) throw new Error("JSON must be an array of statutes with an elements array.");
+        state.legalRecords = records;
+        state.legalCurrentId = records[0].id;
+        state.legalReveal = false;
+        state.legalLastFeedback = "";
+        saveLegalRecords();
+        saveProgress();
+        renderLegalQuiz();
+        refreshUI();
+        alert("Imported legal elements.");
+      } catch (err) {
+        alert("Import failed: " + err.message);
+      } finally {
+        legalImportFile.value = "";
+      }
+    });
+  }
 
   // Hover highlight in quiz mode (routes highlight on hover + tooltip near cursor)
   canvas.addEventListener("mousemove", (evt) => {
@@ -1477,6 +1913,7 @@
 
   // ---------- init ----------
   async function init() {
+    state.legalDifficulty = clamp(parseInt(localStorage.getItem(LEGAL_UI_KEYS.difficulty) || "2", 10) || 2, 1, 3);
     loadFromStorage();
 
     // Restore sidebar state
@@ -1485,6 +1922,20 @@
     refreshUI();
     renderTargetsList();
     render();
+
+    if (isLegalQuiz()) {
+      if (!state.legalRecords.length) {
+        await loadLegalRecordsFromRepo(legalDataUrl());
+      } else {
+        if (!state.legalCurrentId || !state.legalRecords.some(r => r.id === state.legalCurrentId)) {
+          state.legalCurrentId = (state.legalRecords[0] || {}).id || null;
+        }
+        renderLegalQuiz();
+      }
+      refreshUI();
+      return;
+    }
+
     loadLockedImage(mapUrl());
     await loadHotspotsFromRepo(hotspotsUrl());
   }

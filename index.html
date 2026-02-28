@@ -15,13 +15,14 @@
         <button id="tabMap1" class="tabBtn active" type="button" role="tab" aria-selected="true">Map Quiz</button>
         <button id="tabMap2" class="tabBtn" type="button" role="tab" aria-selected="false">Beat Quiz</button>
         <button id="tabMap3" class="tabBtn" type="button" role="tab" aria-selected="false">Radio Quiz</button>
+        <button id="tabLegal" class="tabBtn" type="button" role="tab" aria-selected="false">Legal Elements</button>
       </div>
       <small class="muted" style="margin-top:8px;">
-        Select Map Quiz for roads/cities/villages, Beat Quiz for towns/beats, OR Radio Quiz for radio numbers 
+        Select Map Quiz for roads/cities/villages, Beat Quiz for towns/beats, Radio Quiz for radio numbers, OR Legal Elements for crimes and elements
       </small>
     </div>
 
-    <div class="card">
+    <div class="card" id="modeCard">
       <div class="row" style="justify-content:space-between;">
         <div class="pill" id="modePill">Mode: Quiz</div>
         <button id="toggleMode" class="primary" type="button">Switch to Edit</button>
@@ -33,15 +34,12 @@
       </small>
     </div>
 
-    <div class="card">
+    <div class="card" id="mapStatusCard">
       <div style="font-weight:600;">Map image:</div>
       <div class="muted" id="imgStatus">Loading map…</div>
-      <div class="row" style="margin-top:10px;">
-        <button id="clearProgress" type="button">Clear Quiz Progress</button>
-      </div>
     </div>
 
-    <div class="card">
+    <div class="card" id="scoreCard">
       <div class="row" style="justify-content:space-between;">
         <div>
           <div style="font-weight:600;">Score</div>
@@ -52,8 +50,40 @@
       <div style="margin-top:10px;" class="row">
         <button id="revealAll" type="button">Reveal All</button>
         <button id="hideAll" type="button">Hide All</button>
+        <button id="clearProgress" type="button">Clear Quiz Progress</button>
       </div>
       <small class="muted">Reveal shows answers/outlines. Route hover-tooltip is disabled during Reveal.</small>
+    </div>
+
+    <div class="card" id="legalCard" style="display:none;">
+      <div style="font-weight:600; margin-bottom:8px;">Legal quiz controls</div>
+
+      <div class="row">
+        <div style="flex:1; min-width: 180px;">
+          <label for="legalDifficulty">Difficulty</label>
+          <select id="legalDifficulty" style="width:100%;">
+            <option value="1">1 — some words/elements hidden</option>
+            <option value="2" selected>2 — more words/elements hidden</option>
+            <option value="3">3 — all elements hidden</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="legalNextBtn" class="primary" type="button">Next Unsolved</button>
+        <button id="legalRevealBtn" type="button">Reveal All</button>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button id="legalExportBtn" type="button">Export JSON</button>
+        <label style="display:inline-block;">
+          <input id="legalImportFile" type="file" accept="application/json" style="display:none;">
+          <button id="legalImportBtn" type="button">Import JSON</button>
+        </label>
+      </div>
+
+      <small class="muted" id="legalDatasetLine">No legal dataset loaded yet.</small>
+      <small class="muted" id="legalProgressLine">Import a JSON file or add legal_elements.json next to index.html.</small>
     </div>
 
     <div class="card" id="editCard" style="display:none;">
@@ -133,6 +163,33 @@
     <div id="routeHoverTip" aria-hidden="true"></div>
     <div id="canvasWrap">
       <canvas id="mapCanvas" width="900" height="600"></canvas>
+    </div>
+
+    <div id="legalQuizPanel" style="display:none;">
+      <div class="legalShell">
+        <div class="card legalHero">
+          <div class="row" style="justify-content:space-between; gap:12px;">
+            <div>
+              <div class="legalSectionLabel">Current statute</div>
+              <div id="legalCrimeTitle" class="legalCrimeTitle">Loading…</div>
+            </div>
+            <div id="legalCrimeStatute" class="pill">Statute</div>
+          </div>
+          <div id="legalCrimeDefinition" class="legalDefinition"></div>
+        </div>
+
+        <div class="card">
+          <div class="legalSectionLabel">Fill in the missing words from each element</div>
+          <div id="legalElementsList"></div>
+
+          <div class="row" style="margin-top:14px;">
+            <button id="legalSubmitBtn" class="primary" type="button">Check Answers</button>
+            <button id="legalAnotherBtn" type="button">Another Crime</button>
+          </div>
+
+          <div id="legalFeedback" class="legalFeedback"></div>
+        </div>
+      </div>
     </div>
   </div>
 
