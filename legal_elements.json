@@ -22,29 +22,6 @@
     ]
   },
   {
-    "id": "940.02(1)",
-    "statute": "940.02(1)",
-    "title": "First-degree reckless homicide",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant recklessly caused the death of another human being and that the defendant’s actions were under circumstances demonstrating utter disregard for human life.",
-    "elements": [
-      "Recklessly Causing Death",
-      "Utter Disregard for Human Life"
-    ]
-  },
-  {
-    "id": "940.02(2)",
-    "statute": "940.02(2)",
-    "title": "First-degree reckless homicide (“Len Bias law”)",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused the death of another human being by either manufacturing, distributing, delivering, or administering certain controlled substances in violation of s. 961.41, and that the use of such substances resulted in the death of the individual.",
-    "elements": [
-      "Involvement with Controlled Substances",
-      "Controlled Substance",
-      "Knowledge",
-      "Substance Use",
-      "Death Resulting from Substance Use"
-    ]
-  },
-  {
     "id": "940.03",
     "statute": "940.03",
     "title": "Felony murder - underlying crime completed",
@@ -52,37 +29,6 @@
     "elements": [
       "Causes Death",
       "While Committing or Attempting to Commit a Specified Felony"
-    ]
-  },
-  {
-    "id": "940.05(1)",
-    "statute": "940.05(1)",
-    "title": "Second-degree intentional homicide",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused the death of another human being with intent to kill that person or another.",
-    "elements": [
-      "Causes Death",
-      "Intent"
-    ]
-  },
-  {
-    "id": "940.06(1)",
-    "statute": "940.06(1)",
-    "title": "Second-degree reckless homicide",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant recklessly caused the death of another human being.",
-    "elements": [
-      "Causes Death",
-      "Recklessness"
-    ]
-  },
-  {
-    "id": "940.08(1)",
-    "statute": "940.08(1)",
-    "title": "Homicide by negligent handling of a dangerous weapon, explosives, or fire",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused the death of another human being by negligently operating or handling a dangerous weapon, explosives, or fire.",
-    "elements": [
-      "Causes Death",
-      "Negligent Operation or Handling",
-      "Involvement of a Dangerous Weapon, Explosives, or Fire"
     ]
   },
   {
@@ -130,60 +76,6 @@
     ]
   },
   {
-    "id": "940.09(1g)(b)",
-    "statute": "940.09(1g)(b)",
-    "title": "Homicide by operation or handling of a firearm or airgun with an alcohol concentration of 0.08 or More",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused the death of another human being by operating or handling a firearm or airgun while having an alcohol concentration of 0.08 or more.",
-    "elements": [
-      "Causes Death",
-      "Operation or Handling of a Firearm or Airgun",
-      "Prohibited Alcohol Concentration"
-    ]
-  },
-  {
-    "id": "940.10(1)",
-    "statute": "940.10(1)",
-    "title": "Homicide by negligent operation of a vehicle",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused the death of another human being through the negligent operation or handling of a vehicle.",
-    "elements": [
-      "Causes Death",
-      "Negligent Operation or Handling of a Vehicle",
-      "Involvement of a Vehicle"
-    ]
-  },
-  {
-    "id": "940.11(1)",
-    "statute": "940.11(1)",
-    "title": "Mutilating a corpse",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant mutilated, disfigured, or dismembered a corpse with the intent to conceal a crime or avoid apprehension, prosecution, or conviction for a crime.",
-    "elements": [
-      "Mutilation, Disfigurement, or Dismemberment",
-      "Intent"
-    ]
-  },
-  {
-    "id": "940.11(2)",
-    "statute": "940.11(2)",
-    "title": "Hiding or burying a corpse",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant hid or buried a corpse with the intent to conceal a crime, avoid apprehension, prosecution, or conviction, or with the intent to collect benefits under certain public assistance programs.",
-    "elements": [
-      "Hiding or Burying a Corpse",
-      "Intent",
-      "Intent"
-    ]
-  },
-  {
-    "id": "940.12",
-    "statute": "940.12",
-    "title": "Assisting Suicide",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with the intent that another person takes their own life, assisted that person in committing suicide.",
-    "elements": [
-      "Intent",
-      "Assisting Suicide",
-      "Resulting Action"
-    ]
-  },
-  {
     "id": "940.19(1)",
     "statute": "940.19(1)",
     "title": "Simple battery",
@@ -198,7 +90,7 @@
   {
     "id": "940.19(2)",
     "statute": "940.19(2)",
-    "title": "Substantial Battery: intent to cause bodily harm",
+    "title": "Substantial Battery",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused substantial bodily harm to another person with the intent to cause bodily harm to that person or another.",
     "elements": [
       "Causing Substantial Bodily Harm",
@@ -208,284 +100,11 @@
   {
     "id": "940.19(4)",
     "statute": "940.19(4)",
-    "title": "Aggravated battery: intent to cause bodily harm",
+    "title": "Aggravated battery",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused great bodily harm to another person with the intent to cause bodily harm to that person or another.",
     "elements": [
       "Causing Great Bodily Harm",
       "Intent"
-    ]
-  },
-  {
-    "id": "940.19(5)",
-    "statute": "940.19(5)",
-    "title": "Aggravated battery: intent to cause great bodily harm",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused great bodily harm to another person with the intent to cause great bodily harm to that person or another.",
-    "elements": [
-      "Causing Great Bodily Harm",
-      "Intent"
-    ]
-  },
-  {
-    "id": "940.19(6)",
-    "statute": "940.19(6)",
-    "title": "Battery with substantial risk of great bodily harm",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to another person through conduct that created a substantial risk of great bodily harm. If the person harmed has a discernible or known physical disability, a rebuttable presumption arises that the conduct created a substantial risk of great bodily harm.",
-    "elements": [
-      "Causing Bodily Harm",
-      "Intent",
-      "Substantial Risk of Great Bodily Harm",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(1)",
-    "statute": "940.20(1)",
-    "title": "Battery by prisoner",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, a prisoner confined in a state prison or other detention facility, intentionally caused bodily harm or a soft tissue injury to an officer, employee, visitor, or another inmate without that person’s consent.",
-    "elements": [
-      "Prisoner Status",
-      "Causing Bodily Harm or Soft Tissue Injury",
-      "Intent",
-      "Victim’s Status",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(1g)",
-    "statute": "940.20(1g)",
-    "title": "Battery by certain committed persons",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, a person detained or committed under specific civil commitment statutes, intentionally caused bodily harm to an officer, employee, agent, visitor, or another resident of the facility, without that person's consent.",
-    "elements": [
-      "Detained or Committed Status",
-      "Causing Bodily Harm",
-      "Intent",
-      "Victim’s Status",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(1m)",
-    "statute": "940.20(1m)",
-    "title": "Battery by a person subject to an injunction",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, while subject to an injunction under specific statutes, intentionally caused bodily harm to the petitioner who sought the injunction, without the petitioner’s consent.",
-    "elements": [
-      "Subject to an Injunction",
-      "Causing Bodily Harm",
-      "Intent",
-      "Petitioner as Victim",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(2)",
-    "statute": "940.20(2)",
-    "title": "Battery to firefighter or commission warden",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to a firefighter or commission warden acting in an official capacity, with knowledge or reason to know the victim's role, and without the victim’s consent.",
-    "elements": [
-      "Causes Bodily Harm",
-      "Intent",
-      "Victim’s Status",
-      "Official Capacity",
-      "Knowledge",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(2m)",
-    "statute": "940.20(2m)",
-    "title": "Battery or threat to a probation, extended supervision and parole agent, community supervision agent, or an aftercare agent",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened to cause bodily harm to a probation, extended supervision, or parole agent, a community supervision agent, an aftercare agent, or a family member of such an agent under specific circumstances.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge",
-      "Official Capacity",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(3)",
-    "statute": "940.20(3)",
-    "title": "Battery to a juror",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to a person because the victim served as a juror and participated in a verdict or indictment. The defendant must have known or had reason to know that the victim was a juror, and the harm must have been inflicted without the victim's consent.",
-    "elements": [
-      "Causes Bodily Harm",
-      "Intent",
-      "Victim’s Status as a Juror",
-      "In Retaliation for a Verdict or Indictment",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(4)",
-    "statute": "940.20(4)",
-    "title": "Battery to a public officer",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to a public officer either to influence the officer’s actions or as a result of an action taken by the officer in their official capacity. The bodily harm must have been inflicted without the officer’s consent.",
-    "elements": [
-      "Causes Bodily Harm",
-      "Intent",
-      "Victim’s Status as a Public Officer",
-      "Intent to Influence or Retaliate",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(5)",
-    "statute": "940.20(5)",
-    "title": "Battery to a technical college district or school district officer or employee",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to a technical college district or school district officer or employee, knowing or having reason to know the victim’s status as such, and that the bodily harm was inflicted without the victim’s consent.",
-    "elements": [
-      "Causes Bodily Harm",
-      "Intent",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.20(6)",
-    "statute": "940.20(6)",
-    "title": "Battery to a public transit vehicle operator, driver or passenger",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to another person under specific circumstances involving public transit vehicles, such as while the victim is an operator, driver, or passenger, or in situations where the defendant forces the victim off or prevents access to a public transit vehicle.",
-    "elements": [
-      "Causes Bodily Harm",
-      "Intent",
-      "Circumstances Involving Public Transit"
-    ]
-  },
-  {
-    "id": "940.201",
-    "statute": "940.201",
-    "title": "Battery or threat to a witness",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a person because they, or a family member or cohabitant, attended or testified as a witness.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status as a Witness or Related Person",
-      "Connection to Testimony or Attendance",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.203(2) — Battery or threat to a judge",
-    "statute": "940.203(2)",
-    "title": "Battery or threat to a judge",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a judge or their family member under specific circumstances related to the official capacity of the judge.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Official Action",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.203(2) — Battery or threat to a prosecutor or law enforcement officer",
-    "statute": "940.203(2)",
-    "title": "Battery or threat to a prosecutor or law enforcement officer",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a judge or their family member under specific circumstances related to the official capacity of the judge.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Official Action",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.203(3)",
-    "statute": "940.203(3)",
-    "title": "Battery or threat to a guardian ad litem, corporation counsel, advocate, or attorney",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a current or former guardian ad litem, corporation counsel, advocate, attorney, or their family member in retaliation for actions taken in their official capacity.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Official Action",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.204(2)",
-    "statute": "940.204(2)",
-    "title": "Battery or threat to a staff member of a health care facility",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a person who works or has worked in a health care facility, or to a family member of such a person, in retaliation for actions taken in a health care facility.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Health Care Facility Actions",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.204(3)",
-    "statute": "940.204(3)",
-    "title": "Battery or threat to a health Care provider",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a health care provider, or to a family member of a health care provider, in retaliation for actions taken by the health care provider in their professional capacity.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Health Care Provider’s Actions",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.205",
-    "statute": "940.205",
-    "title": "Battery or threat to a Department of Revenue employee",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a Department of Revenue official, employee, or agent, or their family member, in retaliation for actions taken in the official capacity of the official, employee, or agent.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Official Action",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.207",
-    "statute": "940.207",
-    "title": "Battery or threat to a Department of Safety and Professional Services or Department of Workforce Development Employee",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused or threatened bodily harm to a Department of Safety and Professional Services or Department of Workforce Development official, employee, or agent, or their family member, in retaliation for actions taken in the official capacity of the official, employee, or agent.",
-    "elements": [
-      "Causes or Threatening Bodily Harm",
-      "Victim’s Status",
-      "Knowledge of Victim’s Status",
-      "Response to Official Action",
-      "Without Consent",
-      "Knowledge"
-    ]
-  },
-  {
-    "id": "940.208",
-    "statute": "940.208",
-    "title": "Battery to a county, city, village, or town employee",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused bodily harm to an employee of a county, city, village, or town who was enforcing or inspecting for compliance with construction-related laws or ordinances, and the defendant knew or should have known of the victim’s role.",
-    "elements": [
-      "Causes Bodily Harm",
-      "Intent",
-      "Victim’s Status as a Municipal Employee",
-      "Knowledge of Victim’s Status",
-      "Victim’s Role in Enforcement or Inspection",
-      "Compliance with Law",
-      "Without Consent",
-      "Knowledge"
     ]
   },
   {
@@ -500,24 +119,12 @@
     ]
   },
   {
-    "id": "940.22",
-    "statute": "940.22",
-    "title": "Sexual exploitation by therapist",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, who is or holds themselves out to be a therapist, had sexual contact with a patient or client during an ongoing therapist-patient or therapist-client relationship.",
-    "elements": [
-      "Therapist Status",
-      "Ongoing Therapist-Patient or Therapist-Client Relationship",
-      "Sexual Contact",
-      "Timing"
-    ]
-  },
-  {
     "id": "940.225(1)(a)",
     "statute": "940.225(1)(a)",
-    "title": "First degree sexual assault: sexual contact or intercourse without consent causing great bodily harm or  pregnancy",
+    "title": "First degree sexual assault: sexual contact or intercourse without consent causing great bodily harm or pregnancy",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent and caused pregnancy or great bodily harm to the victim as a result.",
     "elements": [
-      "Sexual Contact",
+      "Sexual Contact or Sexual Intercourse",
       "Without Consent",
       "Causing Pregnancy or Great Bodily Harm"
     ]
@@ -528,21 +135,9 @@
     "title": "First degree sexual assault: sexual contact or intercourse without consent by use or threat of a dangerous weapon",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent and did so by using or threatening to use a dangerous weapon, or an article fashioned to make the victim reasonably believe it was a dangerous weapon.",
     "elements": [
-      "Sexual Contact",
+      "Sexual Contact or Sexual Intercourse",
       "Without Consent",
       "Use or Threat of a Dangerous Weapon"
-    ]
-  },
-  {
-    "id": "940.225(1)(c)",
-    "statute": "940.225(1)(c)",
-    "title": "First degree sexual assault: sexual contact or intercourse without consent by use or threat of force or violence while aided and abetted",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, while being aided or abetted by one or more other persons, had sexual contact or sexual intercourse with another person without their consent, and did so by using or threatening to use force or violence.",
-    "elements": [
-      "Sexual Contact",
-      "Without Consent",
-      "Aided or Abetted by Others",
-      "Use or Threat of Force or Violence"
     ]
   },
   {
@@ -551,7 +146,7 @@
     "title": "Second degree sexual assault: sexual contact or intercourse without consent by use or threat of force or violence",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent, and did so by using or threatening to use force or violence.",
     "elements": [
-      "Sexual Contact",
+      "Sexual Contact or Sexual Intercourse",
       "Without Consent",
       "Use or Threat of Force or Violence"
     ]
@@ -562,109 +157,9 @@
     "title": "Second degree sexual assault: sexual contact or intercourse without consent causing injury, illness, disease or impairment or a sexual or reproductive organ, or mental anguish requiring psychiatric care",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent, and that the assault caused injury, illness, disease, or impairment of a sexual or reproductive organ, or caused mental anguish requiring psychiatric care for the victim.",
     "elements": [
-      "Sexual Contact",
+      "Sexual Contact or Sexual Intercourse",
       "Without Consent",
       "Causing Harm"
-    ]
-  },
-  {
-    "id": "940.225(2)(c)",
-    "statute": "940.225(2)(c)",
-    "title": "Second degree sexual assault: sexual contact or intercourse with a person suffering from mental illness",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with a person who suffers from a mental illness or deficiency that renders them incapable of appraising their own conduct, and that the defendant knew of this condition.",
-    "elements": [
-      "Sexual Contact",
-      "Victim’s Mental Illness or Deficiency",
-      "Defendant’s Knowledge of the Condition"
-    ]
-  },
-  {
-    "id": "940.225(2)(cm)",
-    "statute": "940.225(2)(cm)",
-    "title": "Second degree sexual assault: sexual contact or intercourse with a person who is under the influence of an intoxicant",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with a person who was under the influence of an intoxicant to the extent that they were incapable of giving consent, and that the defendant had actual knowledge of this incapacity and the purpose of engaging in sexual activity while the victim was incapable of consenting.",
-    "elements": [
-      "Sexual Contact",
-      "Victim’s Incapacity Due to Intoxicant",
-      "Defendant’s Knowledge of Incapacity",
-      "Defendant’s Purpose"
-    ]
-  },
-  {
-    "id": "940.225(2)(d)",
-    "statute": "940.225(2)(d)",
-    "title": "Second degree sexual assault: sexual contact or intercourse with a person the defendant knows is unconscious",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with a person who was unconscious, and that the defendant knew the person was unconscious at the time of the sexual activity.",
-    "elements": [
-      "Sexual Contact",
-      "Victim’s Unconsciousness",
-      "Defendant’s Knowledge of Unconsciousness"
-    ]
-  },
-  {
-    "id": "940.225(2)(f)",
-    "statute": "940.225(2)(f)",
-    "title": "Second degree sexual assault: sexual contact or intercourse without consent while aided and abetted",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, while being aided or abetted by one or more other persons, had sexual contact or sexual intercourse with another person without that person’s consent.",
-    "elements": [
-      "Sexual Contact",
-      "Without Consent",
-      "Aided or Abetted by Others"
-    ]
-  },
-  {
-    "id": "940.225(2)(g)",
-    "statute": "940.225(2)(g)",
-    "title": "Second degree sexual assault: sexual contact or intercourse without consent with a patient or resident",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was an employee of a facility or program listed under s. 940.295(2)(b), (c), (h), or (k) and had sexual contact or sexual intercourse with a person who was a patient or resident of that facility or program.",
-    "elements": [
-      "Defendant’s Employment",
-      "Sexual Contact",
-      "Victim’s Status as Patient or Resident"
-    ]
-  },
-  {
-    "id": "940.225(2)(h)",
-    "statute": "940.225(2)(h)",
-    "title": "Second degree sexual assault: sexual contact or intercourse by a correctional staff member",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, who is a correctional staff member, had sexual contact or sexual intercourse with an individual confined in a correctional institution.",
-    "elements": [
-      "Correctional Staff Status",
-      "Sexual Contact",
-      "Victim’s Status as Confined Individual"
-    ]
-  },
-  {
-    "id": "940.225(2)(i)",
-    "statute": "940.225(2)(i)",
-    "title": "Second degree sexual assault: sexual contact or intercourse by a probation, parole, or extended supervision agent",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, who is a probation, parole, or extended supervision agent, had sexual contact or sexual intercourse with an individual under their supervision or influence.",
-    "elements": [
-      "Defendant’s Role as an Agent",
-      "Sexual Contact",
-      "Victim’s Status"
-    ]
-  },
-  {
-    "id": "940.225(2)(j)",
-    "statute": "940.225(2)(j)",
-    "title": "Second degree sexual assault: sexual contact or intercourse by an employee of an entity",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, who is a licensee, employee, or nonclient resident of a specified entity, had sexual contact or sexual intercourse with a client of that entity.",
-    "elements": [
-      "Defendant’s Role",
-      "Sexual Contact",
-      "Victim’s Status as a Client"
-    ]
-  },
-  {
-    "id": "940.225(2)(k)",
-    "statute": "940.225(2)(k)",
-    "title": "Second Degree Sexual Assault: Sexual Contact or Intercourse by a Law Enforcement Officer with a Person Detained or In Custody",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, who is a law enforcement officer, had sexual contact or sexual intercourse with a person who was detained or in custody.",
-    "elements": [
-      "Defendant’s Status as a Law Enforcement Officer",
-      "Sexual Contact",
-      "Victim’s Status"
     ]
   },
   {
@@ -673,17 +168,7 @@
     "title": "Third degree sexual assault: sexual intercourse without consent",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual intercourse with another person without their consent.",
     "elements": [
-      "Sexual Intercourse",
-      "Without Consent"
-    ]
-  },
-  {
-    "id": "940.225(3)(b)",
-    "statute": "940.225(3)(b)",
-    "title": "Third degree sexual assault: Sexual contact without consent involving ejaculation, etc.",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact with another person in the manner described in sub. (5)(b)2 or (5)(b)3 without the person’s consent.",
-    "elements": [
-      "Sexual Contact",
+      "Sexual Intercourse or Sexual Contact",
       "Without Consent"
     ]
   },
@@ -709,17 +194,6 @@
     ]
   },
   {
-    "id": "940.23(2)",
-    "statute": "940.23(2)",
-    "title": "Second degree reckless injury",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant recklessly caused great bodily harm to another human being or an unborn child.",
-    "elements": [
-      "Causing Great Bodily Harm",
-      "Recklessness",
-      "Victim"
-    ]
-  },
-  {
     "id": "940.235",
     "statute": "940.235",
     "title": "Strangulation and suffocation",
@@ -727,17 +201,6 @@
     "elements": [
       "Intentional Act",
       "Method of Impeding"
-    ]
-  },
-  {
-    "id": "940.24",
-    "statute": "940.24",
-    "title": "Injury by negligent handling of a dangerous weapon, explosives or fire.",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused bodily harm to another person through the negligent operation or handling of a dangerous weapon, explosives, or fire.",
-    "elements": [
-      "Causing Bodily Harm",
-      "Negligent Operation or Handling",
-      "Involvement of a Dangerous Weapon, Explosives, or Fire"
     ]
   },
   {
@@ -774,71 +237,6 @@
     ]
   },
   {
-    "id": "940.285",
-    "statute": "940.285",
-    "title": "Abuse of individuals at risk",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant subjected an individual at risk to abuse, either intentionally, recklessly, or negligently. This statute applies to individuals who are not in charge of or employed by certain facilities listed in s. 940.29 or s. 940.295(2).",
-    "elements": [
-      "Individual at Risk",
-      "Abuse",
-      "Intent",
-      "Death, Great Bodily Harm, or Bodily Harm"
-    ]
-  },
-  {
-    "id": "940.29",
-    "statute": "940.29",
-    "title": "Abuse of residents of penal facilities",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, who was in charge of or employed by a penal or correctional institution, abused, neglected, or ill-treated a person confined in or residing at such a facility, or knowingly allowed another person to do so.",
-    "elements": [
-      "Defendant’s Role",
-      "Victim’s Status",
-      "Type of Mistreatment",
-      "Permitting Abuse by Another"
-    ]
-  },
-  {
-    "id": "940.291",
-    "statute": "940.291",
-    "title": "Law enforcement officer - failure to render aid",
-    "definition": "To be guilty of this offense, the prosecution must prove that a peace officer, while acting in the course of their employment or under the authority of their employment, intentionally failed to provide or arrange necessary first aid to a person in their custody, or knowingly allowed another person to do so, and that bodily harm resulted from the failure.",
-    "elements": [
-      "Defendant’s Role as a Peace Officer",
-      "Person in Custody",
-      "Failure to Render or Arrange First Aid",
-      "OR",
-      "Failure to Render or Arrange First Aid",
-      "Bodily Harm",
-      "Ability to Render First Aid"
-    ]
-  },
-  {
-    "id": "940.295 — Abuse of patients and residents",
-    "statute": "940.295",
-    "title": "Abuse of patients and residents",
-    "definition": "To be guilty of this offense, the prosecution must prove that a person in charge of or employed in a facility or program listed under sub. (2) intentionally or recklessly abused a patient or resident, or knowingly permitted another person to do so.",
-    "elements": [
-      "Defendant’s Role",
-      "Victim’s Status",
-      "Type of Abuse",
-      "Type of Harm",
-      "Permitting Abuse or Neglect"
-    ]
-  },
-  {
-    "id": "940.295 — Neglect of patients and residents",
-    "statute": "940.295",
-    "title": "Neglect of patients and residents",
-    "definition": "To be guilty of this offense, the prosecution must prove that a person in charge of or employed in a facility or program listed under sub. (2) intentionally or recklessly neglected a patient or resident, or knowingly permitted another person to do so.",
-    "elements": [
-      "Defendant’s Role",
-      "Victim’s Status",
-      "Type of Abuse",
-      "Type of Harm",
-      "Permitting Abuse or Neglect"
-    ]
-  },
-  {
     "id": "940.30",
     "statute": "940.30",
     "title": "False imprisonment",
@@ -851,40 +249,6 @@
     ]
   },
   {
-    "id": "940.302(2)(a)",
-    "statute": "940.302(2)(a)",
-    "title": "Human trafficking",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant knowingly engaged in trafficking for either labor or services, or for a commercial sex act, using specific methods of coercion, threat, or control.",
-    "elements": [
-      "Knowingly Engaging in Trafficking",
-      "Purpose of Trafficking",
-      "Method of Coercion or Control"
-    ]
-  },
-  {
-    "id": "940.302(2)(c)",
-    "statute": "940.302(2)(c)",
-    "title": "Human trafficking",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant knowingly received compensation derived from debt bondage, a prostitute, or a commercial sex act as described in sub. (1)(a)1 and 2.",
-    "elements": [
-      "Knowingly Receiving Compensation",
-      "Source of Compensation"
-    ]
-  },
-  {
-    "id": "940.305",
-    "statute": "940.305",
-    "title": "Taking a hostage",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant seized, confined, or restrained a person without their consent, using force or the threat of imminent force, with the intent to use the person as a hostage to influence someone to perform or not perform a demanded action.",
-    "elements": [
-      "Seizing, Confining, or Restraining",
-      "Without Consent",
-      "Use of Force or Threat of Imminent Force",
-      "Intent to Use as a Hostage",
-      "Release of the Hostage"
-    ]
-  },
-  {
     "id": "940.31(1)(a)",
     "statute": "940.31(1)(a)",
     "title": "Kidnapping",
@@ -893,31 +257,6 @@
       "Carrying the Victim",
       "Force or Threat of Imminent Force",
       "Without Consent",
-      "Intent",
-      "Intent to Obtain Property"
-    ]
-  },
-  {
-    "id": "940.31(1)(b)",
-    "statute": "940.31(1)(b)",
-    "title": "Kidnapping",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, by force or threat of imminent force, seized or confined another person without their consent, with the intent to secretly confine, imprison, or carry them out of the state or hold them to service against their will.",
-    "elements": [
-      "Seizing or Confining the Victim",
-      "Force or Threat of Imminent Force",
-      "Without Consent",
-      "Intent",
-      "Intent to Obtain Property"
-    ]
-  },
-  {
-    "id": "940.31(1)(c)",
-    "statute": "940.31(1)(c)",
-    "title": "Kidnapping",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, by deceit, induced another person to go from one place to another with the intent to secretly confine, imprison, or carry them out of the state, or hold them to service against their will.",
-    "elements": [
-      "Deceit",
-      "Inducing Movement",
       "Intent",
       "Intent to Obtain Property"
     ]
@@ -959,15 +298,637 @@
     ]
   },
   {
-    "id": "940.32(2e)",
-    "statute": "940.32(2e)",
-    "title": "Stalking",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, after being convicted of sexual assault or a domestic abuse offense, engaged in certain prohibited conduct directed at the victim of the prior offense, knowing that the conduct would cause serious emotional distress or fear of bodily injury or death to the victim or their family/household members.",
+    "id": "941.29(1m)",
+    "statute": "941.29(1m)",
+    "title": "Possession of a firearm by felon",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant possessed a firearm and fell into one of the prohibited categories, such as being a convicted felon, being adjudicated delinquent for a felony-equivalent act, being found not guilty of a felony by reason of mental disease or defect, being committed for treatment and subject to a no-firearm order, being subject to certain injunctions or orders not to possess a firearm.",
     "elements": [
-      "Prior Conviction",
-      "Engaging in Prohibited Acts",
-      "Causing Actual Harm",
-      "Knowledge of Impact"
+      "Possession of a Firearm",
+      "Prohibited Status"
+    ]
+  },
+  {
+    "id": "941.375",
+    "statute": "941.375",
+    "title": "Throwing or discharging bodily fluids at public safety workers or prosecutors",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant threw or expelled blood, semen, vomit, saliva, urine, feces, or other bodily substance at or toward a public safety worker or a prosecutor with the intent that it come into contact with them, and that the public safety worker or prosecutor did not consent to the bodily substance being thrown or expelled at or toward them.",
+    "elements": [
+      "Prohibited Actions",
+      "Target",
+      "Intent",
+      "Lack of Consent"
+    ]
+  },
+  {
+    "id": "941.39",
+    "statute": "941.39",
+    "title": "Violating a no contact order",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally violated a court order issued under s. 973.049(2), which pertains to prohibiting contact with a victim, witness, or co-actor. The classification of the offense depends on the nature of the original conviction that resulted in the court order",
+    "elements": [
+      "Intentional Violation",
+      "Court Order Issued Under s. 973.049(2)",
+      "Resulting from a Conviction",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "943.01(1)",
+    "statute": "943.01(1)",
+    "title": "Criminal damage to property",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally caused damage to the physical property of another person without that person’s consent.",
+    "elements": [
+      "Intentionally Causes Damage",
+      "Physical Property of Another",
+      "Without Consent",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "943.02(1)(a)",
+    "statute": "943.02(1)(a)",
+    "title": "Arson of a building of another",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally damaged a building owned by another person by means of fire, and did so without the owner’s consent.",
+    "elements": [
+      "Intentional Act",
+      "Means",
+      "Building of Another",
+      "Without Consent",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "943.10(1m)",
+    "statute": "943.10(1m)",
+    "title": "Burglary with intent to steal or commit a felony",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally entered any of the specified places without the consent of the person in lawful possession and with the intent to steal or commit a felony in such place. The specified places include: Any building or dwelling. An enclosed railroad car. An enclosed portion of any ship or vessel. A locked enclosed cargo portion of a truck or trailer. A motor home or other motorized type of home or a trailer home, whether or not any person is living in such home. A room within any of the above.",
+    "elements": [
+      "Intentional Act",
+      "Places",
+      "Without Consent",
+      "Intent to Steal or Commit a Felony",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "943.14",
+    "statute": "943.14",
+    "title": "Criminal trespass to dwellings",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally entered or remained in the dwelling of another without the consent of someone lawfully upon the premises, or if no person was lawfully upon the premises, without the consent of the owner of the property that includes the dwelling, and that this was done under circumstances tending to create or provoke a breach of the peace.",
+    "elements": [
+      "Intentional Act",
+      "Dwelling",
+      "Without Consent",
+      "Knowledge",
+      "Circumstances Tending to Create or Provoke a Breach of the Peace"
+    ]
+  },
+  {
+    "id": "943.20(1)(a)",
+    "statute": "943.20(1)(a)",
+    "title": "Theft",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally took and carried away, used, transferred, concealed, or retained possession of movable property belonging to another person without the owner’s consent, and with the intent to deprive the owner permanently of possession of such property.",
+    "elements": [
+      "Intentional Act",
+      "Movable Property of Another",
+      "Without Consent",
+      "Knowledge",
+      "Intent to Deprive"
+    ]
+  },
+  {
+    "id": "943.201(2)",
+    "statute": "943.201(2)",
+    "title": "Unauthorized use of an individual’s personal identifying information or documents",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally used, attempted to use, or possessed with intent to use any personal identifying information or personal identification document of an individual (including a deceased individual), without the authorization or consent of the individual, and by representing that he or she is the individual, that he or she is acting with the authorization or consent of the individual, or that the information or document belongs to him or her. The purpose must be one or more of the following: To obtain credit, money, goods, services, employment, or any other thing of value or benefit. To avoid civil or criminal process or penalty. To harm the reputation, property, person, or estate of the individual.",
+    "elements": [
+      "Intentional Act",
+      "Personal Identifying Information or Personal Identification Document",
+      "Without Authorization or Consent",
+      "Representation",
+      "Purpose"
+    ]
+  },
+  {
+    "id": "943.231(1)",
+    "statute": "943.231(1)",
+    "title": "Carjacking [taking a vehicle by use or threat of force]",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, while possessing a dangerous weapon, intentionally took a vehicle without the owner’s consent. The defendant must have used or threatened to use force or the weapon against another person in the process of taking the vehicle.",
+    "elements": [
+      "Prohibited Conduct",
+      "Use or Threat of Force",
+      "Dangerous Weapon",
+      "Lack of Consent",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "943.23(3)",
+    "statute": "943.23(3)",
+    "title": "Driving or operating a vehicle without the owner’s consent",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally drove or operated a vehicle without the owner’s consent.",
+    "elements": [
+      "Prohibited Conduct",
+      "Intent",
+      "Lack of Consent",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "943.30(1)",
+    "statute": "943.30(1)",
+    "title": "Extortion: accuse or threaten to accuse",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant either verbally or by any written or printed communication, maliciously threatened to accuse another of a crime or accused another of a crime, with intent to extort money or other financial benefits, or to compel the victim to act against their will or refrain from doing something lawful.",
+    "elements": [
+      "Prohibited Conduct",
+      "Maliciousness",
+      "Intent"
+    ]
+  },
+  {
+    "id": "943.32(1)(a)",
+    "statute": "943.32(1)(a)",
+    "title": "Robbery by force",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with intent to steal, took property from the person or presence of the owner by using force to overcome resistance or compel acquiescence.",
+    "elements": [
+      "Taking Property",
+      "Use of Force",
+      "Purpose of Force",
+      "Intent to Steal"
+    ]
+  },
+  {
+    "id": "943.32(1)(b)",
+    "statute": "943.32(1)(b)",
+    "title": "Robbery by threat",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with intent to steal, took property from the person or presence of the owner by using force to overcome resistance or compel acquiescence.",
+    "elements": [
+      "Taking Property",
+      "Use of Force",
+      "Purpose of Force",
+      "Intent to Steal"
+    ]
+  },
+  {
+    "id": "943.38(1)",
+    "statute": "943.38(1)",
+    "title": "Forgery",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with the intent to defraud, falsely made or altered a writing or object to make it appear as though it was made by someone else, at a different time, with different provisions, or with unauthorized authority. The writing or object in question must be one that is legally significant, such as documents that create, terminate, or transfer legal rights, public records, or official certifications.",
+    "elements": [
+      "Prohibited Conduct",
+      "Intent"
+    ]
+  },
+  {
+    "id": "943.50(1m)(a)-(e)",
+    "statute": "943.50(1m)(a)-(e)",
+    "title": "Retail Theft",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally engaged in actions such as altering price tags, taking, carrying away, transferring, concealing, or retaining possession of merchandise or property held for resale by a merchant, all without the merchant’s consent. The defendant must have acted with the intent to permanently deprive the merchant of the merchandise or its full purchase price.",
+    "elements": [
+      "Prohibited Conduct",
+      "Knowledge",
+      "Merchant’s Consent",
+      "Knowledge",
+      "Intent"
+    ]
+  },
+  {
+    "id": "943.895(2)(a)1-2.",
+    "statute": "943.895(2)(a)1-2.",
+    "title": "Money laundering",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant knowingly engaged in one of the following activities with proceeds derived from unlawful activity: Receiving or Acquiring Proceeds Facilitating the Movement of Proceeds",
+    "elements": [
+      "Prohibited Conduct",
+      "Proceeds",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "944.15",
+    "statute": "944.15",
+    "title": "Public fornication: sexual intercourse in public",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual intercourse in public, knowing or having reason to know that their conduct was observable by or in the presence of persons other than the person with whom they were having sexual intercourse.",
+    "elements": [
+      "Act",
+      "In Public",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "944.17(2)",
+    "statute": "944.17(2)",
+    "title": "Sexual gratification in public",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant committed an act of sexual gratification involving the sex organ of one person and the mouth or anus of another person, and that this act occurred in public, where the defendant knew or had reason to know that the conduct was observable by or in the presence of persons other than the person with whom they were having sexual gratification.",
+    "elements": [
+      "Act",
+      "In Public",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "944.20(1)(a)",
+    "statute": "944.20(1)(a)",
+    "title": "Lewd and Lascivious Behavior: Indecent Act of Sexual Gratification with Another",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant engaged in an indecent act of sexual gratification with another person and knew that they were in the presence of others while doing so.",
+    "elements": [
+      "Prohibited Conduct",
+      "Presence of Others",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "944.20(1)(b)",
+    "statute": "944.20(1)(b)",
+    "title": "Lewd and lascivious behavior: exposure",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant publicly and indecently exposed their genitals or pubic area.",
+    "elements": [
+      "Act",
+      "In Public"
+    ]
+  },
+  {
+    "id": "944.30(1m)(a)",
+    "statute": "944.30(1m)(a)",
+    "title": "Prostitution: nonmarital sexual intercourse",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally had, offered to have, or requested to have nonmarital sexual intercourse in exchange for anything of value.",
+    "elements": [
+      "Intentional Act",
+      "For Anything of Value"
+    ]
+  },
+  {
+    "id": "944.33(1)",
+    "statute": "944.33(1)",
+    "title": "Pandering",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant solicited another to have nonmarital sexual intercourse or to commit an act of sexual gratification, involving the sex organ of one person and the mouth or anus of another, masturbation, or sexual contact, and that the defendant knew the person being solicited was a prostitute.",
+    "elements": [
+      "Intentional Act",
+      "Solicitation for Specific Acts",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "946.41",
+    "statute": "946.41",
+    "title": "Resisting or obstructing an officer",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant knowingly resisted or obstructed an officer while the officer was doing any act in an official capacity and with lawful authority. Enhanced penalties apply if: The violator gives false information or places physical evidence with intent to mislead an officer, leading to the conviction of an innocent person. The violator causes substantial bodily harm or a soft tissue injury to an officer. The violator causes great bodily harm to an officer.",
+    "elements": [
+      "Prohibited Conduct",
+      "Officer",
+      "Act in Official Capacity",
+      "Lawful Authority",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "946.415(2)",
+    "statute": "946.415(2)",
+    "title": "Failure to comply with an officer’s attempt to take a person into custody",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally refused to comply with an officer’s lawful attempt to take them into custody, retreated or remained in a building or place and, through action or threat, attempted to prevent the officer from taking them into custody, and while doing so, remained or became armed with a dangerous weapon or threatened to use a dangerous weapon regardless of whether they actually had a dangerous weapon.",
+    "elements": [
+      "Intentional Act"
+    ]
+  },
+  {
+    "id": "946.42(3)(a)",
+    "statute": "946.42(3)(a)",
+    "title": "Escape from custody resulting from legal arrest for a crime",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person in custody who intentionally escaped from custody pursuant to a legal arrest for, being lawfully charged with, convicted of, or sentenced for a crime.",
+    "elements": [
+      "Person",
+      "Intentional Act",
+      "Circumstances"
+    ]
+  },
+  {
+    "id": "946.47(1)(a)",
+    "statute": "946.47(1)(a)",
+    "title": "Aiding a felon",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person who, with the intent to prevent the apprehension of a felon, harbored or aided the felon.",
+    "elements": [
+      "Intent",
+      "Action",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "946.49(1)",
+    "statute": "946.49(1)",
+    "title": "Bail jumping",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person who had been released from custody under Chapter 969 and that the defendant intentionally failed to comply with the terms of their bond.",
+    "elements": [
+      "Person",
+      "Custody Release",
+      "Intentional Act",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "946.65",
+    "statute": "946.65",
+    "title": "Obstructing justice",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person who, for a consideration, knowingly gave false information to an officer of any court with the intent to influence the officer in the performance of their official functions.",
+    "elements": [
+      "Action",
+      "Intent",
+      "Consideration"
+    ]
+  },
+  {
+    "id": "947.012(1)(a)",
+    "statute": "947.012(1)(a)",
+    "title": "Unlawful use of telephone",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person who, with the intent to frighten, intimidate, threaten, abuse, or harass, made a telephone call and threatened to inflict injury or physical harm to any person or the property of any person.",
+    "elements": [
+      "Intent",
+      "Action",
+      "Threat"
+    ]
+  },
+  {
+    "id": "947.0125(2)(a)",
+    "statute": "947.0125(2)(a)",
+    "title": "Unlawful use of a computerized communication system: threat to inflict injury",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with the intent to frighten, intimidate, threaten, abuse, or harass another person, sent a message to the person on an electronic mail or other computerized communication system and in that message threatened to inflict injury or physical harm to any person or the property of any person.",
+    "elements": [
+      "Action",
+      "Content of Message",
+      "Intent"
+    ]
+  },
+  {
+    "id": "947.015",
+    "statute": "947.015",
+    "title": "Bomb scares",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant intentionally conveyed or caused to be conveyed any threat or false information, knowing such information to be false, concerning an attempt or alleged attempt being made or to be made to destroy any property by means of explosives.",
+    "elements": [
+      "Intentional Act",
+      "Knowledge",
+      "Content of the Threat or Information"
+    ]
+  },
+  {
+    "id": "947.019(1)",
+    "statute": "947.019(1)",
+    "title": "Terrorist threats",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant threatened to cause the death of or bodily harm to any person or to damage any person’s property. The prosecution must also prove that the threat was made with the intent to prevent the occupation of or cause the evacuation of a building, dwelling, school premises, vehicle, facility of public transportation, or place of public assembly, or any room within a building, dwelling, or school premises; to cause public inconvenience; to cause public panic or fear; to cause an interruption or impairment of governmental operations or public communication, of transportation, or of a supply of water, gas, or other public service; or that the actor created an unreasonable and substantial risk of causing any of these results and was aware of that risk.",
+    "elements": [
+      "Threat",
+      "Intent"
+    ]
+  },
+  {
+    "id": "343.05(3)(a)",
+    "statute": "343.05(3)(a)",
+    "title": "Operating a motor vehicle without a valid operator’s license",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant operated a motor vehicle (that is not a commercial motor vehicle) on a highway in the state and did not possess a valid operator’s license issued by the department, which was not revoked, suspended, canceled, or expired.",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Location",
+      "Valid Operator’s License"
+    ]
+  },
+  {
+    "id": "343.05(3)(a)__2",
+    "statute": "343.05(3)(a)",
+    "title": "Operating a motor vehicle without a valid operator’s license: causing great bodily harm or death",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant operated a motor vehicle (that is not a commercial motor vehicle) on a highway in the state without possessing a valid operator’s license issued by the department, which is not revoked, suspended, canceled, or expired. Additionally, the prosecution must prove that during the course of this violation, the defendant caused great bodily harm to another person. If the defendant knew at the time of the violation that he or she did not possess a valid operator’s license, the offense is elevated to a Class I felony.",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Location",
+      "Valid Operator’s License",
+      "Violation Resulting in Harm",
+      "Knowledge of License Status"
+    ]
+  },
+  {
+    "id": "346.04(2t)",
+    "statute": "346.04(2t)",
+    "title": "Resisting a traffic officer by failing to stop",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was operating a vehicle and, after receiving a visible or audible signal to stop from a traffic officer, federal law enforcement officer, or marked or unmarked police vehicle, knowingly resisted the officer by failing to stop the vehicle as promptly as safety reasonably permits. The defendant must have known or reasonably should have known that the signal was being given by a law enforcement officer.",
+    "elements": [
+      "Operator of a Vehicle",
+      "Receipt of Signal to Stop",
+      "Knowledge of Law Enforcement Officer",
+      "Knowingly Resist"
+    ]
+  },
+  {
+    "id": "346.04(3)",
+    "statute": "346.04(3)",
+    "title": "Operating a motor vehicle to flee or in an attempt to elude an officer",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was operating a vehicle and, after receiving a visual or audible signal to stop from a traffic officer, federal law enforcement officer, or marked or unmarked police vehicle, knowingly fled or attempted to elude the officer. The defendant must have known or reasonably should have known that the signal was given by a law enforcement officer. The act of fleeing or attempting to elude must have been done with willful or wanton disregard of the officer’s signal, interfering with or endangering the operation of the police vehicle, the officer, other vehicles, or pedestrians. Additionally, the defendant must have increased the speed of the vehicle or extinguished the lights of the vehicle in an attempt to elude or flee.",
+    "elements": [
+      "Operator of a Vehicle",
+      "Receipt of Signal to Stop",
+      "Knowledge of Law Enforcement Officer",
+      "Knowingly Flee or Attempt to Elude",
+      "Willful or Wanton Disregard",
+      "Interference or Endangerment",
+      "Additional Actions to Elude"
+    ]
+  },
+  {
+    "id": "346.57(2)",
+    "statute": "346.57(2)",
+    "title": "Speeding57(2) or an ordinance adopting § 346.57(2)",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving a vehicle at a speed greater than what is reasonable and prudent under the conditions and with regard to the actual and potential hazards existing at the time. The speed of the vehicle must be controlled as necessary to avoid colliding with any object, person, vehicle, or other conveyance on or entering the highway, and the defendant must drive in compliance with legal requirements and using due care.",
+    "elements": [
+      "Driving a Vehicle",
+      "Speed Greater than Reasonable and Prudent"
+    ]
+  },
+  {
+    "id": "346.57(5)",
+    "statute": "346.57(5)",
+    "title": "Speeding57(5) or an ordinance adopting § 346.57(5)",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving a vehicle, that the speed limit was established pursuant to law by state or local authorities, that the speed limit was indicated by official signs, and that the defendant drove in excess of the posted speed limit.",
+    "elements": [
+      "Driving a Vehicle",
+      "Speed Limit Established by Law",
+      "Posted Speed Limit",
+      "Exceeding the Posted Speed Limit"
+    ]
+  },
+  {
+    "id": "346.62(2)",
+    "statute": "346.62(2)",
+    "title": "Reckless driving: endangering safety (criminal offense)",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was operating a vehicle in a negligent manner, and that this negligent operation endangered the safety of any person or property.",
+    "elements": [
+      "Driving a Vehicle",
+      "Negligent Operation",
+      "Endangerment"
+    ]
+  },
+  {
+    "id": "346.63(1)(a)",
+    "statute": "346.63(1)(a)",
+    "title": "Operating a motor vehicle while under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which renders him or her incapable of safely driving.",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person driving or operating a motor vehicle while under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which renders him or her incapable of safely driving.",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Under the Influence"
+    ]
+  },
+  {
+    "id": "346.63(1)(a) and § 346.65(2)(f)1",
+    "statute": "346.63(1)(a) and § 346.65(2)(f)1",
+    "title": "Operating a motor vehicle while under the influence of an intoxicant with a child under 16 years of age in the vehicle",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving or operating a motor vehicle while under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which renders him or her incapable of safely driving. Additionally, if there was a minor passenger under 16 years of age in the motor vehicle at the time of the violation, the defendant shall be fined not less than $350 nor more than $1,100 and imprisoned for not less than 5 days nor more than 6 months.",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Under the Influence",
+      "Presence of a Minor Passenger"
+    ]
+  },
+  {
+    "id": "346.63(1)(am)",
+    "statute": "346.63(1)(am)",
+    "title": "Operating a motor vehicle with a detectable amount of a restricted controlled substance",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving or operating a motor vehicle, and that the defendant had a detectable amount of a restricted controlled substance in his or her blood.",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Detectable Amount of a Restricted Controlled Substance"
+    ]
+  },
+  {
+    "id": "346.63(1)(b)",
+    "statute": "346.63(1)(b)",
+    "title": "Operating a motor vehicle with a prohibited alcohol concentration - 0.08 grams or more",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving or operating a motor vehicle, and that the defendant had a prohibited alcohol concentration in his or her blood.",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Prohibited Alcohol Concentration"
+    ]
+  },
+  {
+    "id": "346.63(1)(b)__2",
+    "statute": "346.63(1)(b)",
+    "title": "Operating a motor vehicle with a prohibited alcohol concentration - criminal offense - 0.02 grams or more",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving or operating a motor vehicle, that the defendant had a prohibited alcohol concentration in his or her blood, and that the defendant has three or more convictions, suspensions, or revocations as counted under § 343.307(1).",
+    "elements": [
+      "Operation of a Motor Vehicle",
+      "Prohibited Alcohol Concentration",
+      "Prior Convictions, Suspensions, or Revocations"
+    ]
+  },
+  {
+    "id": "346.63(2)(a)1",
+    "statute": "346.63(2)(a)1",
+    "title": "Operating a vehicle while under the influence of an intoxicant and causing injury",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was operating a vehicle, caused injury to another person by operating the vehicle, and was under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which rendered him or her incapable of safely driving.",
+    "elements": [
+      "Operation of a Vehicle",
+      "Causing Injury",
+      "Under the Influence"
+    ]
+  },
+  {
+    "id": "346.67",
+    "statute": "346.67",
+    "title": "Failure to give information or render aid following an accident",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was the operator of a vehicle involved in an accident, who reasonably investigated what was struck and knew or had reason to know that the accident resulted in injury or death of a person or in damage to a vehicle driven or attended by a person. The defendant must have stopped the vehicle as close to the scene of the accident as possible, remained at the scene until providing their name, address, and registration number to the appropriate persons, exhibited their operator’s license upon request and if available, and rendered reasonable assistance to any injured person. The stop must have been made without obstructing traffic more than necessary.",
+    "elements": [
+      "Operator of a Vehicle",
+      "Knowledge",
+      "Investigation",
+      "Investigation"
+    ]
+  },
+  {
+    "id": "347.413",
+    "statute": "347.413",
+    "title": "Tampering with an ignition interlock device",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant either removed, disconnected, tampered with, or otherwise circumvented the operation of an ignition interlock device installed in response to a court order. Additionally, the prosecution must prove that the defendant operated or occupied the motor vehicle on a highway.",
+    "elements": [
+      "Ignition Interlock Device",
+      "Prohibited Actions",
+      "Operation or Occupation of a Vehicle"
+    ]
+  },
+  {
+    "id": "347.413__2",
+    "statute": "347.413",
+    "title": "Failing to install an ignition interlock device",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was subject to a court order under s. 343.301 (1g) requiring the installation of an ignition interlock device or restricting the defendant’s operating privilege, and that the defendant either failed to have the ignition interlock device installed as ordered by the court or violated the court order restricting their operating privilege. Additionally, the prosecution must prove that the defendant operated or occupied the motor vehicle on a highway.",
+    "elements": [
+      "Court Order for Ignition Interlock Device",
+      "Failure to Install",
+      "Violation of Court Order",
+      "Operation or Occupation of a Vehicle"
+    ]
+  },
+  {
+    "id": "961.41(1)",
+    "statute": "961.41(1)",
+    "title": "Delivery of a controlled substance/analog",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant unlawfully delivered a controlled substance or controlled substance analog without authorization as defined by the relevant laws.",
+    "elements": [
+      "Unlawful Act",
+      "Controlled Substance",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "961.41(1)__2",
+    "statute": "961.41(1)",
+    "title": "Manufacture of a controlled substance/analog",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant engaged in the act of manufacturing a controlled substance or controlled substance analog without proper authorization.",
+    "elements": [
+      "Unlawful Act",
+      "Controlled Substance",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "961.41(1m)",
+    "statute": "961.41(1m)",
+    "title": "Possession of a controlled substance/analog with intent to deliver",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant possessed a controlled substance or controlled substance analog with the intent to deliver it, without proper authorization.",
+    "elements": [
+      "Possession",
+      "Intent to Deliver",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "961.41(3g)",
+    "statute": "961.41(3g)",
+    "title": "Possession of a controlled substance /analog",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant possessed or attempted to possess a controlled substance or controlled substance analog without proper authorization.",
+    "elements": [
+      "Possession",
+      "Knowledge"
+    ]
+  },
+  {
+    "id": "961.573(1)",
+    "statute": "961.573(1)",
+    "title": "Possession of drug paraphernalia",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant used or possessed drug paraphernalia with the primary intent to engage in activities related to controlled substances or controlled substance analogs, such as planting, propagating, cultivating, manufacturing, processing, preparing, testing, packing, storing, concealing, injecting, ingesting, inhaling, or otherwise introducing the substance into the human body.",
+    "elements": [
+      "Use or Possession",
+      "Primary Intent"
+    ]
+  },
+  {
+    "id": "961.573(3)(a)",
+    "statute": "961.573(3)(a)",
+    "title": "Possession of drug paraphernalia: methamphetamine",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant used or possessed drug paraphernalia with the primary intent manufacture, compound, convert, produce, process, prepare, test, analyze, pack, repack, or store methamphetamine.",
+    "elements": [
+      "Use or Possession",
+      "Primary Intent"
+    ]
+  },
+  {
+    "id": "961.65",
+    "statute": "961.65",
+    "title": "Possessing materials for manufacturing methamphetamine",
+    "definition": "To be guilty of this offense, the prosecution must prove that the defendant possessed an ephedrine or pseudoephedrine product, red phosphorus, lithium metal, sodium metal, iodine, anhydrous ammonia, or pressurized ammonia with the intent to manufacture methamphetamine and that the possession was not authorized.",
+    "elements": [
+      "Possession",
+      "Intent"
     ]
   }
 ]
