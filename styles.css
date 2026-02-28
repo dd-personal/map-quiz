@@ -197,3 +197,21 @@ body.legal-active #main {
   color: rgba(232,236,243,.55);
   font-style: italic;
 }
+
+
+.legalTitleLink {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(110,160,255,0.72);
+  text-underline-offset: 0.12em;
+}
+
+.legalTitleLink:hover {
+  color: #a8c4ff;
+}
+
+.legalTitleLink:focus-visible {
+  outline: 2px solid rgba(110,160,255,0.9);
+  outline-offset: 4px;
+  border-radius: 6px;
+}

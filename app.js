@@ -147,6 +147,32 @@
     legalLastCheckResults = [];
   }
 
+  function extractPrimaryStatuteRef(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+
+    const match = raw.match(/\d{3}\.\d+(?:\([A-Za-z0-9]+\))*/);
+    return match ? match[0] : "";
+  }
+
+  function buildLegalElementsUrl(entry) {
+    const ref = extractPrimaryStatuteRef(entry?.statute || entry?.id || "");
+    if (!ref) return "";
+
+    const match = ref.match(/^(\d{3})\.(\d+)(.*)$/);
+    if (!match) return "";
+
+    const [, chapter, section, remainder] = match;
+    const subsectionMatches = Array.from(remainder.matchAll(/\(([^)]+)\)/g)).map((m) => m[1]);
+
+    // Match the Wisconsin State Law Library URL pattern provided by the user:
+    // 940.01(1)(a) -> elements-940.html#01-1
+    // 961.41(3g)   -> elements-961.html#41-3g
+    const fragment = subsectionMatches.length ? `${section}-${subsectionMatches[0]}` : section;
+
+    return `https://wilawlibrary.gov/elements/elements-${chapter}.html#${fragment}`;
+  }
+
 
   // Zoom behavior (scroll wheel)
   const WRAP_PAD = 12;
@@ -1805,7 +1831,25 @@ async function switchQuiz(nextId) {
   function renderLegal() {
     if (!legalCurrent) return;
 
-    if (legalCrimeTitleEl) legalCrimeTitleEl.textContent = legalCurrent.title || "";
+    if (legalCrimeTitleEl) {
+      legalCrimeTitleEl.textContent = "";
+      const titleText = legalCurrent.title || "";
+      const legalUrl = buildLegalElementsUrl(legalCurrent);
+
+      if (titleText && legalUrl) {
+        const link = document.createElement("a");
+        link.href = legalUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.className = "legalTitleLink";
+        link.textContent = titleText;
+        link.title = `Open ${legalCurrent.statute || legalCurrent.id || "statute"} in Wisconsin Statutory Elements`;
+        legalCrimeTitleEl.appendChild(link);
+      } else {
+        legalCrimeTitleEl.textContent = titleText;
+      }
+    }
+
     if (legalCrimeStatuteEl) legalCrimeStatuteEl.textContent = legalCurrent.statute || "";
 
     // Definition under title/statute (hidden until solved or reveal)
