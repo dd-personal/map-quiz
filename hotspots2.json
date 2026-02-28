@@ -193,7 +193,7 @@
   },
   {
     "id": "zilf04uz",
-    "answer": "Ruttland",
+    "answer": "Rutland",
     "aliases": [],
     "shape": "rect",
     "x1": 965.7934131736527,
@@ -665,8 +665,8 @@
   },
   {
     "id": "f40nkxxf",
-    "answer": "",
-    "aliases": [],
+    "answer": "Sam 2",
+    "aliases": ["S2"],
     "shape": "route",
     "points": [
       {
