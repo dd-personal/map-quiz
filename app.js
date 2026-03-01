@@ -2419,21 +2419,23 @@ async function switchQuiz(nextId) {
         wrap.className = "card";
         wrap.style.marginBottom = "12px";
 
-        const h = document.createElement("div");
-        h.className = "legalSectionLabel";
-        h.textContent = isTenCodeMode() ? "Meaning" : `Element ${idx + 1}`;
-        wrap.appendChild(h);
+        if (!isTenCodeMode()) {
+          const h = document.createElement("div");
+          h.className = "legalSectionLabel";
+          h.textContent = `Element ${idx + 1}`;
+          wrap.appendChild(h);
 
-        const t = document.createElement("div");
-        t.className = "legalElementText";
-        t.textContent = row.masked;
-        wrap.appendChild(t);
+          const t = document.createElement("div");
+          t.className = "legalElementText";
+          t.textContent = row.masked;
+          wrap.appendChild(t);
+        }
 
         const inputLabel = document.createElement("div");
         inputLabel.className = "legalSmallLabel";
-        inputLabel.textContent = legalSolved || legalRevealAll
-          ? (isTenCodeMode() ? "Answer" : "Completed element")
-          : (isTenCodeMode() ? "Your answer" : "Your answer");
+        inputLabel.textContent = isTenCodeMode()
+          ? "Answer"
+          : (legalSolved || legalRevealAll ? "Completed element" : "Your answer");
         wrap.appendChild(inputLabel);
 
         const inp = document.createElement("input");
