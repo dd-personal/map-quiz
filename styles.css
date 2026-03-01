@@ -94,9 +94,10 @@
     .ok { color: #a9f5c8; }
     .bad { color: #ffb4b4; }
 /* Tabs (multi-map) */
-.tabRow { display:flex; gap:8px; }
+.tabRow { display:flex; gap:8px; flex-wrap: wrap; }
 .tabBtn {
-  flex: 1;
+  flex: 1 1 140px;
+  min-width: 0;
   padding: 10px 10px;
   border-radius: 12px;
   border: 1px solid #2a3550;
@@ -185,16 +186,19 @@ body.mode-quiz #canvasWrap.panning { cursor: grabbing; }
   margin-bottom: 6px;
 }
 
-.legalAnswerInput {
+.legalAnswerInput,
+.legalInput {
   width: min(560px, 100%);
 }
 
-.legalAnswerInput.goodInput {
+.legalAnswerInput.goodInput,
+.legalInput.goodInput {
   border-color: #3f8f5c;
   box-shadow: 0 0 0 1px rgba(63,143,92,.35) inset;
 }
 
-.legalAnswerInput.badInput {
+.legalAnswerInput.badInput,
+.legalInput.badInput {
   border-color: #9f4141;
   box-shadow: 0 0 0 1px rgba(159,65,65,.35) inset;
 }

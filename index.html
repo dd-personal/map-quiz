@@ -18,9 +18,10 @@
         <button id="tabMap2" class="tabBtn" type="button" role="tab" aria-selected="false">Beat Quiz</button>
         <button id="tabMap3" class="tabBtn" type="button" role="tab" aria-selected="false">Radio Quiz</button>
         <button id="tabLegal" class="tabBtn" type="button" role="tab" aria-selected="false">Legal Elements</button>
+        <button id="tabTenCodes" class="tabBtn" type="button" role="tab" aria-selected="false">10 Codes</button>
       </div>
       <small class="muted" style="margin-top:8px;">
-        Select Map Quiz for roads/cities/villages, Beat Quiz for towns/beats, Radio Quiz for radio numbers, OR Legal Elements for crimes and elements
+        Select Map Quiz for roads/cities/villages, Beat Quiz for towns/beats, Radio Quiz for radio numbers, Legal Elements for crimes and elements, or 10 Codes for radio-code recall
       </small>
     </div>
 
@@ -58,11 +59,11 @@
     </div>
 
     <div class="card" id="legalCard" style="display:none;">
-      <div style="font-weight:600; margin-bottom:8px;">Legal quiz controls</div>
+      <div id="legalCardTitle" style="font-weight:600; margin-bottom:8px;">Legal quiz controls</div>
 
       <div class="row">
         <div style="flex:1; min-width: 180px;">
-          <label for="legalDifficulty">Difficulty</label>
+          <label for="legalDifficulty" id="legalDifficultyLabel">Difficulty</label>
           <select id="legalDifficulty" style="width:100%;">
             <option value="1">1 — some words/elements hidden</option>
             <option value="2" selected>2 — more words/elements hidden</option>
@@ -77,7 +78,7 @@
         <button id="legalClearProgressBtn" type="button">Clear Quiz Progress</button>
       </div>
 
-      <div class="row" style="margin-top:10px;">
+      <div class="row" id="legalDataButtonsRow" style="margin-top:10px;">
         <button id="legalExportBtn" type="button">Export JSON</button>
         <label style="display:inline-block;">
           <input id="legalImportFile" type="file" accept="application/json" style="display:none;">
@@ -85,6 +86,7 @@
         </label>
       </div>
 
+      <small class="muted" id="legalCardHelp">Practice Wisconsin crimes and elements.</small>
       <small class="muted" id="legalDatasetLine">No legal dataset loaded yet.</small>
       <small class="muted" id="legalProgressLine">Import a JSON file or add legal_elements.json next to index.html.</small>
     </div>
@@ -180,7 +182,7 @@
         <div class="card legalHero">
           <div class="row" style="justify-content:space-between; gap:12px;">
             <div>
-              <div class="legalSectionLabel">Current statute</div>
+              <div id="legalCurrentLabel" class="legalSectionLabel">Current statute</div>
               <div id="legalCrimeTitle" class="legalCrimeTitle">Loading…</div>
             </div>
             <div id="legalCrimeStatute" class="pill">Statute</div>
@@ -189,7 +191,7 @@
         </div>
 
         <div class="card">
-          <div class="legalSectionLabel">Fill in the missing words from each element</div>
+          <div id="legalElementsIntro" class="legalSectionLabel">Fill in the missing words from each element</div>
           <div id="legalElementsList"></div>
 
           <div class="row" style="margin-top:14px;">

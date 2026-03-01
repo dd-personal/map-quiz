@@ -24,17 +24,21 @@
   };
 
 
-  // ---------- legal quiz ----------
+  // ---------- study quizzes ----------
   const LEGAL_DATA_FILE = "legal_elements.json";
+  const TEN_CODES_DATA_FILE = "ten_codes.json";
   const LEGAL_STORAGE_KEY = "mapQuiz.legal.completed.v1";
+  const TEN_CODE_STORAGE_KEY = "mapQuiz.tenCodes.completed.v1";
 
   let legalActive = false;
+  let activeStudyMode = "legal"; // "legal" | "tenCodes"
   let legalDataset = [];
+  let tenCodeDataset = { standard: [], all: [] };
   let legalCurrent = null; // {id, statute, title, definition, elements[]}
   let legalRevealAll = false;
   let legalSolved = false;
 
-  // Per-current-crime render cache: [{ original, maskedHtml, missingWords, missingFullText }]
+  // Per-current-item render cache: [{ original, masked, missingWords, missingFullText }]
   let legalRender = [];
   let legalDraftAnswers = [];
   let legalLastCheckResults = [];
@@ -44,6 +48,132 @@
     "is","are","was","were","be","been","being","as","into","over","under","while","during","within","that","this",
     "these","those","any","all","no","not","nor"
   ]);
+
+  const TEN_CODE_STANDARD_ROWS = [
+    { code: "10-2", meaning: "Signal is Good" },
+    { code: "10-4", meaning: "Acknowledgment" },
+    { code: "10-6", meaning: "Busy Unless Urgent" },
+    { code: "10-7", meaning: "Out of Service" },
+    { code: "10-8", meaning: "In Service" },
+    { code: "10-9", meaning: "Repeat" },
+    { code: "10-10", meaning: "Fight in Progress" },
+    { code: "10-16", meaning: "Domestic" },
+    { code: "10-17", meaning: "Complainant" },
+    { code: "10-20", meaning: "Location" },
+    { code: "10-21", meaning: "Call by Telephone" },
+    { code: "10-22", meaning: "Disregard" },
+    { code: "10-23", meaning: "Arrived at Scene" },
+    { code: "10-27", meaning: "DL Identification" },
+    { code: "10-28", meaning: "Vehicle Identification" },
+    { code: "10-29", meaning: "Wanted Check" },
+    { code: "10-32", meaning: "Man with a Gun" },
+    { code: "10-33", meaning: "Emergency" },
+    { code: "10-41", meaning: "Beginning Duty" },
+    { code: "10-42", meaning: "Ending Duty" },
+    { code: "10-43", meaning: "Information" },
+    { code: "10-46", meaning: "Motorist Assist" },
+    { code: "10-50", meaning: "Accident/Crash" },
+    { code: "10-55", meaning: "Intoxicated Driver" },
+    { code: "10-56", meaning: "Intoxicated Person" },
+    { code: "10-59", meaning: "Escort" },
+    { code: "10-60", meaning: "Squad in Vicinity" },
+    { code: "10-61", meaning: "Person in Area" },
+    { code: "10-76", meaning: "Enroute" },
+    { code: "10-80", meaning: "Pursuit in Progress" },
+    { code: "10-95", meaning: "Prisoner in Custody" },
+    { code: "10-96", meaning: "Mental Subject" },
+    { code: "10-99", meaning: "Wanted on Warrant(s)" }
+  ];
+
+  const TEN_CODE_ALL_EXTRA_ROWS = [
+    { code: "10-0", meaning: "Caution/Wanted" },
+    { code: "10-1", meaning: "Unable to Copy" },
+    { code: "10-3", meaning: "Stop Transmitting" },
+    { code: "10-5", meaning: "Relay" },
+    { code: "10-11", meaning: "Dog Case" },
+    { code: "10-12", meaning: "Stand By" },
+    { code: "10-13", meaning: "Weather/Road Report" },
+    { code: "10-14", meaning: "Prowler" },
+    { code: "10-15", meaning: "Civil Disturbance" },
+    { code: "10-16", meaning: "Domestic" },
+    { code: "10-18", meaning: "Quickly" },
+    { code: "10-19", meaning: "Return to..." },
+    { code: "10-24", meaning: "Assignment Completed" },
+    { code: "10-25", meaning: "Report in Person" },
+    { code: "10-26", meaning: "Detaining Subject" },
+    { code: "10-30", meaning: "Illegal Use of Radio" },
+    { code: "10-31", meaning: "Crime in Progress" },
+    { code: "10-34", meaning: "Riot" },
+    { code: "10-35", meaning: "Major Crime Alert" },
+    { code: "10-36", meaning: "Time" },
+    { code: "10-37", meaning: "Suspicious Vehicle" },
+    { code: "10-38", meaning: "Stop Suspicious Vehicle" },
+    { code: "10-39", meaning: "Urgent, Lights/Siren" },
+    { code: "10-40", meaning: "Silent Run" },
+    { code: "10-44", meaning: "Leaving Area" },
+    { code: "10-45", meaning: "Animal Carcass" },
+    { code: "10-47", meaning: "Road Repairs" },
+    { code: "10-48", meaning: "Traffic Stand, Repair" },
+    { code: "10-49", meaning: "Light Out" },
+    { code: "10-51", meaning: "Wrecker/Tow Needed" },
+    { code: "10-52", meaning: "Ambulance Needed" },
+    { code: "10-53", meaning: "Road Blocked" },
+    { code: "10-54", meaning: "Door Opening" },
+    { code: "10-57", meaning: "Hit and Run" },
+    { code: "10-58", meaning: "Direct Traffic" },
+    { code: "10-62", meaning: "Reply to Message" },
+    { code: "10-63", meaning: "Written Message" },
+    { code: "10-64", meaning: "Local Delivery" },
+    { code: "10-65", meaning: "Net Message Assign." },
+    { code: "10-66", meaning: "Message Cancellation" },
+    { code: "10-67", meaning: "Clear for Message" },
+    { code: "10-68", meaning: "Dispatch Information" },
+    { code: "10-69", meaning: "Message Received" },
+    { code: "10-70", meaning: "Fire Alarm" },
+    { code: "10-71", meaning: "Nature of Fire" },
+    { code: "10-72", meaning: "Progress of Fire" },
+    { code: "10-73", meaning: "Smoke Report" },
+    { code: "10-74", meaning: "Negative" },
+    { code: "10-75", meaning: "In Contact" },
+    { code: "10-77", meaning: "ETA" },
+    { code: "10-78", meaning: "Need Assistance" },
+    { code: "10-79", meaning: "Notify Coroner" },
+    { code: "10-81", meaning: "Breathalyzer Operator" },
+    { code: "10-82", meaning: "Parking Permission" },
+    { code: "10-83", meaning: "School Crossing" },
+    { code: "10-84", meaning: "If Meeting ETA" },
+    { code: "10-85", meaning: "Delayed" },
+    { code: "10-86", meaning: "Officer on Duty" },
+    { code: "10-87", meaning: "Pick up Checks" },
+    { code: "10-88", meaning: "Telephone Number Of" },
+    { code: "10-89", meaning: "Bomb Threat" },
+    { code: "10-90", meaning: "Alarm/Intrusion" },
+    { code: "10-91", meaning: "Pick Up Prisoner" },
+    { code: "10-92", meaning: "Parking Complaint" },
+    { code: "10-93", meaning: "Blockade" },
+    { code: "10-94", meaning: "Drag Racing" },
+    { code: "10-97", meaning: "Radio Test" },
+    { code: "10-98", meaning: "Prison/Jail Break" }
+  ];
+
+  function buildTenCodeEntries(rows) {
+    return rows.map(({ code, meaning }) => ({
+      id: `ten-code:${code}`,
+      statute: code,
+      title: meaning,
+      definition: meaning,
+      elements: [meaning]
+    }));
+  }
+
+  const TEN_CODE_STANDARD_SET = buildTenCodeEntries(TEN_CODE_STANDARD_ROWS);
+  const TEN_CODE_ALL_SET = (() => {
+    const byCode = new Map();
+    [...TEN_CODE_STANDARD_ROWS, ...TEN_CODE_ALL_EXTRA_ROWS].forEach(({ code, meaning }) => {
+      if (!byCode.has(code)) byCode.set(code, meaning);
+    });
+    return buildTenCodeEntries(Array.from(byCode, ([code, meaning]) => ({ code, meaning })));
+  })();
 
   function normalizeText(s) {
     return (s || "")
@@ -124,7 +254,7 @@
 
   function loadLegalCompletedSet() {
     try {
-      const raw = localStorage.getItem(LEGAL_STORAGE_KEY);
+      const raw = localStorage.getItem(getActiveStudyStorageKey());
       const arr = raw ? JSON.parse(raw) : [];
       return new Set(Array.isArray(arr) ? arr : []);
     } catch {
@@ -134,13 +264,13 @@
 
   function saveLegalCompletedSet(set) {
     try {
-      localStorage.setItem(LEGAL_STORAGE_KEY, JSON.stringify(Array.from(set)));
+      localStorage.setItem(getActiveStudyStorageKey(), JSON.stringify(Array.from(set)));
     } catch {}
   }
 
   function clearLegalCompletedSet() {
     try {
-      localStorage.removeItem(LEGAL_STORAGE_KEY);
+      localStorage.removeItem(getActiveStudyStorageKey());
     } catch {}
   }
 
@@ -177,6 +307,137 @@
       : section;
 
     return `https://wilawlibrary.gov/elements/elements-${chapter}.html#${fragment}`;
+  }
+
+  function isTenCodeMode() {
+    return activeStudyMode === "tenCodes";
+  }
+
+  function getTenCodeDataset() {
+    const mode = (legalDifficultySel?.value || "standard") === "all" ? "all" : "standard";
+    const loaded = Array.isArray(tenCodeDataset?.[mode]) ? tenCodeDataset[mode] : [];
+    if (loaded.length) return loaded;
+    return mode === "all" ? TEN_CODE_ALL_SET : TEN_CODE_STANDARD_SET;
+  }
+
+  function getActiveStudyDataset() {
+    return isTenCodeMode() ? getTenCodeDataset() : legalDataset;
+  }
+
+  function getActiveStudyStorageKey() {
+    return isTenCodeMode() ? TEN_CODE_STORAGE_KEY : LEGAL_STORAGE_KEY;
+  }
+
+  function getStudyModeMeta() {
+    return isTenCodeMode()
+      ? {
+          cardTitle: "10-code quiz controls",
+          cardHelp: "Display a radio code and type its plain-language meaning.",
+          difficultyLabel: "Code set",
+          difficultyOptions: [
+            { value: "standard", label: "Standard — common 10-codes" },
+            { value: "all", label: "All Codes — full set" }
+          ],
+          defaultDifficulty: "standard",
+          datasetLine: (count) => `${count} codes loaded`,
+          progressLine: (done, total) => total ? `${done}/${total} completed` : "",
+          currentLabel: "Current 10-code",
+          promptLabel: "Type the plain-language meaning for this code",
+          submitLabel: "Check Answer",
+          nextLabel: "Next Unsolved",
+          anotherLabel: "Another Code",
+          revealLabel: "Reveal Answer",
+          showDataButtons: false,
+          titleText: (entry) => entry?.statute || entry?.id || "",
+          badgeText: () => ((legalDifficultySel?.value || "standard") === "all" ? "All Codes" : "Standard Set"),
+          definitionText: (entry) => entry?.title || entry?.definition || "",
+          feedbackSolved: (entry) => `Correct. You completed ${entry?.statute || ""} — ${entry?.title || ""}.`,
+          feedbackReveal: "Answer revealed.",
+          feedbackCleared: "10-code quiz progress cleared.",
+          useTitleLink: false,
+          fullRecallOnly: true,
+          exportFileName: TEN_CODES_DATA_FILE
+        }
+      : {
+          cardTitle: "Legal quiz controls",
+          cardHelp: "Practice Wisconsin crimes and elements.",
+          difficultyLabel: "Difficulty",
+          difficultyOptions: [
+            { value: "1", label: "1 — some words/elements hidden" },
+            { value: "2", label: "2 — more words/elements hidden" },
+            { value: "3", label: "3 — all elements hidden" }
+          ],
+          defaultDifficulty: "2",
+          datasetLine: (count) => `${count} crimes loaded`,
+          progressLine: (done, total) => total ? `${done}/${total} completed` : "",
+          currentLabel: "Current statute",
+          promptLabel: "Fill in the missing words from each element",
+          submitLabel: "Check Answers",
+          nextLabel: "Next Unsolved",
+          anotherLabel: "Another Crime",
+          revealLabel: "Reveal All",
+          showDataButtons: true,
+          titleText: (entry) => entry?.title || "",
+          badgeText: (entry) => entry?.statute || "",
+          definitionText: (entry) => entry?.definition || "",
+          feedbackSolved: (entry) => `Correct. You completed ${entry?.statute || ""} - ${entry?.title || ""}.`,
+          feedbackReveal: "Revealed.",
+          feedbackCleared: "Legal quiz progress cleared.",
+          useTitleLink: true,
+          fullRecallOnly: false,
+          exportFileName: LEGAL_DATA_FILE
+        };
+  }
+
+  function configureStudyUi() {
+    const meta = getStudyModeMeta();
+
+    if (legalCardTitle) legalCardTitle.textContent = meta.cardTitle;
+    if (legalCardHelp) legalCardHelp.textContent = meta.cardHelp;
+    if (legalDifficultyLabel) legalDifficultyLabel.textContent = meta.difficultyLabel;
+    if (legalCurrentLabelEl) legalCurrentLabelEl.textContent = meta.currentLabel;
+    if (legalElementsIntroEl) legalElementsIntroEl.textContent = meta.promptLabel;
+    if (legalSubmitBtn) legalSubmitBtn.textContent = meta.submitLabel;
+    if (legalNextBtn) legalNextBtn.textContent = meta.nextLabel;
+    if (legalAnotherBtn) legalAnotherBtn.textContent = meta.anotherLabel;
+    if (legalRevealBtn) legalRevealBtn.textContent = meta.revealLabel;
+    if (legalDataButtonsRow) legalDataButtonsRow.style.display = meta.showDataButtons ? "" : "none";
+
+    if (legalDifficultySel) {
+      const optionHtml = meta.difficultyOptions
+        .map((opt) => `<option value="${opt.value}">${opt.label}</option>`)
+        .join("");
+      if (legalDifficultySel.innerHTML !== optionHtml) {
+        const prev = legalDifficultySel.value;
+        legalDifficultySel.innerHTML = optionHtml;
+        const stillValid = meta.difficultyOptions.some((opt) => opt.value === prev);
+        legalDifficultySel.value = stillValid ? prev : meta.defaultDifficulty;
+      } else if (!meta.difficultyOptions.some((opt) => opt.value === legalDifficultySel.value)) {
+        legalDifficultySel.value = meta.defaultDifficulty;
+      }
+    }
+
+    if (legalDatasetLine) {
+      if (isTenCodeMode()) {
+        legalDatasetLine.textContent = meta.datasetLine(getActiveStudyDataset().length);
+      } else if (!legalDataset.length) {
+        legalDatasetLine.textContent = "No legal dataset loaded yet.";
+      }
+    }
+  }
+
+  function maskStudyText(text) {
+    if (getStudyModeMeta().fullRecallOnly) {
+      const words = tokenizeWords(text);
+      return {
+        masked: words.length ? words.map(() => "____").join(" ") : "____",
+        missingWords: words.slice(),
+        missingFullText: true
+      };
+    }
+
+    const level = Number(legalDifficultySel?.value || "1");
+    return maskElementText(text, level);
   }
 
 
@@ -251,23 +512,30 @@
   const tabMap3Btn = document.getElementById("tabMap3");
 
   const tabLegalBtn = document.getElementById("tabLegal");
+  const tabTenCodesBtn = document.getElementById("tabTenCodes");
 
-  // Legal elements panel (separate from map quizzes)
+  // Study quiz panel (shared by Legal Elements + 10 Codes)
   const legalCard = document.getElementById("legalCard");
+  const legalCardTitle = document.getElementById("legalCardTitle");
   const legalDifficultySel = document.getElementById("legalDifficulty");
+  const legalDifficultyLabel = document.getElementById("legalDifficultyLabel");
+  const legalDataButtonsRow = document.getElementById("legalDataButtonsRow");
   const legalNextBtn = document.getElementById("legalNextBtn");
   const legalRevealBtn = document.getElementById("legalRevealBtn");
   const legalClearProgressBtn = document.getElementById("legalClearProgressBtn");
   const legalExportBtn = document.getElementById("legalExportBtn");
   const legalImportFile = document.getElementById("legalImportFile");
   const legalImportBtn = document.getElementById("legalImportBtn");
+  const legalCardHelp = document.getElementById("legalCardHelp");
   const legalDatasetLine = document.getElementById("legalDatasetLine");
   const legalProgressLine = document.getElementById("legalProgressLine");
 
   const legalQuizPanel = document.getElementById("legalQuizPanel");
+  const legalCurrentLabelEl = document.getElementById("legalCurrentLabel");
   const legalCrimeTitleEl = document.getElementById("legalCrimeTitle");
   const legalCrimeStatuteEl = document.getElementById("legalCrimeStatute");
   const legalCrimeDefEl = document.getElementById("legalCrimeDefinition");
+  const legalElementsIntroEl = document.getElementById("legalElementsIntro");
   const legalElementsListEl = document.getElementById("legalElementsList");
   const legalSubmitBtn = document.getElementById("legalSubmitBtn");
   const legalAnotherBtn = document.getElementById("legalAnotherBtn");
@@ -1519,9 +1787,14 @@
       tabMap3Btn.setAttribute("aria-selected", on ? "true" : "false");
     }
     if (tabLegalBtn) {
-      const on = legalActive;
+      const on = legalActive && activeStudyMode === "legal";
       tabLegalBtn.classList.toggle("active", on);
       tabLegalBtn.setAttribute("aria-selected", on ? "true" : "false");
+    }
+    if (tabTenCodesBtn) {
+      const on = legalActive && activeStudyMode === "tenCodes";
+      tabTenCodesBtn.classList.toggle("active", on);
+      tabTenCodesBtn.setAttribute("aria-selected", on ? "true" : "false");
     }
   }
 
@@ -1555,16 +1828,18 @@
 
   function showLegalTab() {
     legalActive = true;
+    document.body.classList.add("legal-active");
     setActiveTabUI();
     setMapUiVisible(false);
     setLegalUiVisible(true);
     if (canvasWrap) canvasWrap.style.display = "none";
-    // Map hover tooltip shouldn't show over legal
+    // Map hover tooltip shouldn't show over study quizzes
     try { hideRouteHoverTip(); } catch {}
   }
 
   function hideLegalTab() {
     legalActive = false;
+    document.body.classList.remove("legal-active");
     setActiveTabUI();
     setMapUiVisible(true);
     setLegalUiVisible(false);
@@ -1634,22 +1909,52 @@ async function switchQuiz(nextId) {
   }
 
 
-  toggleToolBtn.addEventListener("click", toggleTool);
-  if (tabMap1Btn) tabMap1Btn.addEventListener("click", () => { switchQuiz("map1"); });
-  if (tabMap2Btn) tabMap2Btn.addEventListener("click", () => { switchQuiz("map2"); });
-  if (tabMap3Btn) tabMap3Btn.addEventListener("click", () => { switchQuiz("map3"); });
-  if (tabLegalBtn) tabLegalBtn.addEventListener("click", async () => {
+  async function openStudyTab(mode) {
     // Save map progress before leaving the map
     try { saveTargets(); } catch {}
     try { saveProgress(); } catch {}
+
+    const changed = activeStudyMode !== mode;
+    activeStudyMode = mode;
+    configureStudyUi();
+
+    if (changed) {
+      legalCurrent = null;
+      legalRevealAll = false;
+      legalSolved = false;
+      resetLegalAttemptState();
+      if (legalFeedbackEl) legalFeedbackEl.textContent = "";
+    }
+
     showLegalTab();
     if (isMobileLayout()) setSidebarCollapsed(true);
     try { await ensureLegalReady(); } catch (e) {
       if (legalFeedbackEl) legalFeedbackEl.textContent = String(e?.message || e);
     }
+  }
+
+  toggleToolBtn.addEventListener("click", toggleTool);
+  if (tabMap1Btn) tabMap1Btn.addEventListener("click", () => { switchQuiz("map1"); });
+  if (tabMap2Btn) tabMap2Btn.addEventListener("click", () => { switchQuiz("map2"); });
+  if (tabMap3Btn) tabMap3Btn.addEventListener("click", () => { switchQuiz("map3"); });
+  if (tabLegalBtn) tabLegalBtn.addEventListener("click", async () => {
+    await openStudyTab("legal");
+  });
+  if (tabTenCodesBtn) tabTenCodesBtn.addEventListener("click", async () => {
+    await openStudyTab("tenCodes");
   });
 
-  if (legalDifficultySel) legalDifficultySel.addEventListener("change", () => {
+  if (legalDifficultySel) legalDifficultySel.addEventListener("change", async () => {
+    if (isTenCodeMode()) {
+      legalCurrent = null;
+      legalRevealAll = false;
+      legalSolved = false;
+      resetLegalAttemptState();
+      if (legalFeedbackEl) legalFeedbackEl.textContent = "";
+      await ensureLegalReady();
+      return;
+    }
+
     // re-render masking only if not solved/revealed
     if (!legalSolved && !legalRevealAll) renderLegal();
   });
@@ -1671,7 +1976,7 @@ async function switchQuiz(nextId) {
     legalSolved = false;
     legalCurrent = null;
     resetLegalAttemptState();
-    if (legalFeedbackEl) legalFeedbackEl.textContent = "Legal quiz progress cleared.";
+    if (legalFeedbackEl) legalFeedbackEl.textContent = getStudyModeMeta().feedbackCleared;
     await ensureLegalReady();
   });
 
@@ -1687,7 +1992,7 @@ async function switchQuiz(nextId) {
 
   if (legalExportBtn) legalExportBtn.addEventListener("click", () => {
     if (!legalDataset || !legalDataset.length) return;
-    downloadJson(LEGAL_DATA_FILE, legalDataset);
+    downloadJson(getStudyModeMeta().exportFileName, legalDataset);
   });
 
   if (legalImportBtn) legalImportBtn.addEventListener("click", async () => {
@@ -2091,6 +2396,61 @@ async function switchQuiz(nextId) {
     render();
   }, { passive: false });
   
+  function normalizeTenCodeRow(row) {
+    if (!row || typeof row !== "object") return null;
+
+    const code = String(row.code ?? row.statute ?? row.id ?? "").trim();
+    const meaning = String(row.meaning ?? row.title ?? row.definition ?? "").trim();
+    if (!code || !meaning) return null;
+
+    return { code, meaning };
+  }
+
+  function uniqueTenCodeRows(rows) {
+    const seen = new Set();
+    const out = [];
+    (Array.isArray(rows) ? rows : []).forEach((row) => {
+      const normalized = normalizeTenCodeRow(row);
+      if (!normalized) return;
+      const key = normalized.code.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push(normalized);
+    });
+    return out;
+  }
+
+  async function loadTenCodeDataset() {
+    if (tenCodeDataset.standard.length || tenCodeDataset.all.length) return tenCodeDataset;
+
+    try {
+      const url = new URL(TEN_CODES_DATA_FILE, document.baseURI).toString();
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) throw new Error(`Failed to load ${TEN_CODES_DATA_FILE}: ${res.status}`);
+
+      const data = await res.json();
+      if (!data || typeof data !== "object") throw new Error(`${TEN_CODES_DATA_FILE} must be an object`);
+
+      const standardRows = uniqueTenCodeRows(data.standard);
+      const allRows = uniqueTenCodeRows(data.all);
+      if (!standardRows.length) throw new Error(`${TEN_CODES_DATA_FILE} standard set is empty`);
+      if (!allRows.length) throw new Error(`${TEN_CODES_DATA_FILE} all set is empty`);
+
+      tenCodeDataset = {
+        standard: buildTenCodeEntries(standardRows),
+        all: buildTenCodeEntries(allRows)
+      };
+    } catch (err) {
+      console.warn("Falling back to embedded ten-code dataset:", err);
+      tenCodeDataset = {
+        standard: TEN_CODE_STANDARD_SET,
+        all: TEN_CODE_ALL_SET
+      };
+    }
+
+    return tenCodeDataset;
+  }
+
   async function loadLegalDataset() {
     // Prefer imported dataset already loaded
     if (legalDataset && legalDataset.length) return legalDataset;
@@ -2110,33 +2470,44 @@ async function switchQuiz(nextId) {
         definition: String(x.definition ?? ""),
         elements: x.elements.map(e => String(e))
       }));
-    if (legalDatasetLine) legalDatasetLine.textContent = `${legalDataset.length} crimes loaded`;
+    if (legalDatasetLine && !isTenCodeMode()) {
+      legalDatasetLine.textContent = getStudyModeMeta().datasetLine(legalDataset.length);
+    }
     return legalDataset;
   }
 
   function pickNextLegalCrime() {
+    const dataset = getActiveStudyDataset();
     const completed = loadLegalCompletedSet();
-    const pool = (legalDataset || []).filter(x => !completed.has(x.id));
-    const pickFrom = pool.length ? pool : legalDataset;
+    const pool = (dataset || []).filter(x => !completed.has(x.id));
+    const pickFrom = pool.length ? pool : dataset;
     if (!pickFrom || !pickFrom.length) return null;
     return pickFrom[Math.floor(Math.random() * pickFrom.length)];
   }
 
   function updateLegalProgressLine() {
     if (!legalProgressLine) return;
+    const meta = getStudyModeMeta();
+    const dataset = getActiveStudyDataset();
     const completed = loadLegalCompletedSet();
-    const done = completed.size;
-    const total = legalDataset ? legalDataset.length : 0;
-    legalProgressLine.textContent = total ? `${done}/${total} completed` : "";
+    const done = (dataset || []).filter(x => completed.has(x.id)).length;
+    const total = dataset ? dataset.length : 0;
+    legalProgressLine.textContent = meta.progressLine(done, total);
+    if (legalDatasetLine) legalDatasetLine.textContent = meta.datasetLine(total);
   }
 
   function renderLegal() {
     if (!legalCurrent) return;
 
+    const meta = getStudyModeMeta();
+    const titleText = meta.titleText(legalCurrent);
+    const badgeText = meta.badgeText(legalCurrent);
+    const definitionText = meta.definitionText(legalCurrent);
+    const shouldShowDefinition = (legalRevealAll || legalSolved) && definitionText.trim();
+
     if (legalCrimeTitleEl) {
       legalCrimeTitleEl.textContent = "";
-      const titleText = legalCurrent.title || "";
-      const legalUrl = buildLegalElementsUrl(legalCurrent);
+      const legalUrl = meta.useTitleLink ? buildLegalElementsUrl(legalCurrent) : "";
 
       if (titleText && legalUrl) {
         const link = document.createElement("a");
@@ -2151,21 +2522,16 @@ async function switchQuiz(nextId) {
         legalCrimeTitleEl.textContent = titleText;
       }
     }
-    if (legalCrimeStatuteEl) legalCrimeStatuteEl.textContent = legalCurrent.statute || "";
+    if (legalCrimeStatuteEl) legalCrimeStatuteEl.textContent = badgeText;
 
-    // Definition under title/statute (hidden until solved or reveal)
     if (legalCrimeDefEl) {
-      const shouldShow = legalRevealAll || legalSolved;
-      legalCrimeDefEl.textContent = shouldShow ? (legalCurrent.definition || "") : "";
-      legalCrimeDefEl.style.display = shouldShow && (legalCurrent.definition || "").trim() ? "" : "none";
+      legalCrimeDefEl.textContent = shouldShowDefinition ? definitionText : "";
+      legalCrimeDefEl.style.display = shouldShowDefinition ? "" : "none";
     }
 
-    const level = Number(legalDifficultySel?.value || "1");
-
     legalRender = (legalCurrent.elements || []).map((txt) => {
-      const masked = (legalRevealAll || legalSolved) ? txt : maskElementText(txt, level).masked;
-      const maskedInfo = maskElementText(txt, level);
-      // If solved/reveal, no missing required
+      const maskedInfo = maskStudyText(txt);
+      const masked = (legalRevealAll || legalSolved) ? txt : maskedInfo.masked;
       const missingWords = (legalRevealAll || legalSolved) ? [] : maskedInfo.missingWords;
       const missingFullText = (legalRevealAll || legalSolved) ? false : maskedInfo.missingFullText;
       return { original: txt, masked, missingWords, missingFullText };
@@ -2180,7 +2546,7 @@ async function switchQuiz(nextId) {
 
         const h = document.createElement("div");
         h.className = "legalSectionLabel";
-        h.textContent = `Element ${idx + 1}`;
+        h.textContent = isTenCodeMode() ? "Meaning" : `Element ${idx + 1}`;
         wrap.appendChild(h);
 
         const t = document.createElement("div");
@@ -2190,7 +2556,9 @@ async function switchQuiz(nextId) {
 
         const inputLabel = document.createElement("div");
         inputLabel.className = "legalSmallLabel";
-        inputLabel.textContent = legalSolved || legalRevealAll ? "Completed element" : "Your answer";
+        inputLabel.textContent = legalSolved || legalRevealAll
+          ? (isTenCodeMode() ? "Answer" : "Completed element")
+          : (isTenCodeMode() ? "Your answer" : "Your answer");
         wrap.appendChild(inputLabel);
 
         const inp = document.createElement("input");
@@ -2201,7 +2569,7 @@ async function switchQuiz(nextId) {
         inp.dataset.idx = String(idx);
 
         if (legalSolved || legalRevealAll) {
-          inp.value = "Completed";
+          inp.value = row.original;
           inp.disabled = true;
         } else {
           inp.value = legalDraftAnswers[idx] || "";
@@ -2266,7 +2634,7 @@ async function switchQuiz(nextId) {
       legalRevealAll = false;
       resetLegalAttemptState();
       if (legalFeedbackEl) {
-        legalFeedbackEl.textContent = `Correct. You completed ${legalCurrent.statute} - ${legalCurrent.title}.`;
+        legalFeedbackEl.textContent = getStudyModeMeta().feedbackSolved(legalCurrent);
       }
       renderLegal();
     } else {
@@ -2279,14 +2647,21 @@ async function switchQuiz(nextId) {
     legalRevealAll = true;
     legalSolved = true; // treat as solved for display/fill purposes (does not auto-mark completed)
     resetLegalAttemptState();
-    if (legalFeedbackEl) legalFeedbackEl.textContent = "Revealed.";
+    if (legalFeedbackEl) legalFeedbackEl.textContent = getStudyModeMeta().feedbackReveal;
     renderLegal();
   }
 
   async function ensureLegalReady() {
-    await loadLegalDataset();
+    configureStudyUi();
+    if (isTenCodeMode()) {
+      await loadTenCodeDataset();
+    } else {
+      await loadLegalDataset();
+    }
+
+    const dataset = getActiveStudyDataset();
     updateLegalProgressLine();
-    if (!legalCurrent) {
+    if (!legalCurrent || !(dataset || []).some(x => x.id === legalCurrent.id)) {
       legalCurrent = pickNextLegalCrime();
       legalRevealAll = false;
       legalSolved = false;
@@ -2296,7 +2671,11 @@ async function switchQuiz(nextId) {
   }
 
   async function startNewLegalCrime() {
-    await loadLegalDataset();
+    if (isTenCodeMode()) {
+      await loadTenCodeDataset();
+    } else {
+      await loadLegalDataset();
+    }
     legalCurrent = pickNextLegalCrime();
     legalRevealAll = false;
     legalSolved = false;
@@ -2307,10 +2686,12 @@ async function switchQuiz(nextId) {
 // ---------- init ----------
   async function init() {
     loadFromStorage();
+    configureStudyUi();
 
     // Default to map UI
     setLegalUiVisible(false);
     legalActive = false;
+    document.body.classList.remove("legal-active");
 
     // Restore sidebar state
     setSidebarCollapsed(localStorage.getItem(UI_KEYS.sidebarCollapsed) === "1");

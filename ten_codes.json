@@ -1,0 +1,538 @@
+{
+  "standard": [
+    {
+      "code": "10-2",
+      "meaning": "Signal is Good"
+    },
+    {
+      "code": "10-4",
+      "meaning": "Acknowledgment"
+    },
+    {
+      "code": "10-6",
+      "meaning": "Busy Unless Urgent"
+    },
+    {
+      "code": "10-7",
+      "meaning": "Out of Service"
+    },
+    {
+      "code": "10-8",
+      "meaning": "In Service"
+    },
+    {
+      "code": "10-9",
+      "meaning": "Repeat"
+    },
+    {
+      "code": "10-10",
+      "meaning": "Fight in Progress"
+    },
+    {
+      "code": "10-16",
+      "meaning": "Domestic"
+    },
+    {
+      "code": "10-17",
+      "meaning": "Complainant"
+    },
+    {
+      "code": "10-20",
+      "meaning": "Location"
+    },
+    {
+      "code": "10-21",
+      "meaning": "Call by Telephone"
+    },
+    {
+      "code": "10-22",
+      "meaning": "Disregard"
+    },
+    {
+      "code": "10-23",
+      "meaning": "Arrived at Scene"
+    },
+    {
+      "code": "10-27",
+      "meaning": "DL Identification"
+    },
+    {
+      "code": "10-28",
+      "meaning": "Vehicle Identification"
+    },
+    {
+      "code": "10-29",
+      "meaning": "Wanted Check"
+    },
+    {
+      "code": "10-32",
+      "meaning": "Man with a Gun"
+    },
+    {
+      "code": "10-33",
+      "meaning": "Emergency"
+    },
+    {
+      "code": "10-41",
+      "meaning": "Beginning Duty"
+    },
+    {
+      "code": "10-42",
+      "meaning": "Ending Duty"
+    },
+    {
+      "code": "10-43",
+      "meaning": "Information"
+    },
+    {
+      "code": "10-46",
+      "meaning": "Motorist Assist"
+    },
+    {
+      "code": "10-50",
+      "meaning": "Accident/Crash"
+    },
+    {
+      "code": "10-55",
+      "meaning": "Intoxicated Driver"
+    },
+    {
+      "code": "10-56",
+      "meaning": "Intoxicated Person"
+    },
+    {
+      "code": "10-59",
+      "meaning": "Escort"
+    },
+    {
+      "code": "10-60",
+      "meaning": "Squad in Vicinity"
+    },
+    {
+      "code": "10-61",
+      "meaning": "Person in Area"
+    },
+    {
+      "code": "10-76",
+      "meaning": "Enroute"
+    },
+    {
+      "code": "10-80",
+      "meaning": "Pursuit in Progress"
+    },
+    {
+      "code": "10-95",
+      "meaning": "Prisoner in Custody"
+    },
+    {
+      "code": "10-96",
+      "meaning": "Mental Subject"
+    },
+    {
+      "code": "10-99",
+      "meaning": "Wanted on Warrant(s)"
+    }
+  ],
+  "all": [
+    {
+      "code": "10-2",
+      "meaning": "Signal is Good"
+    },
+    {
+      "code": "10-4",
+      "meaning": "Acknowledgment"
+    },
+    {
+      "code": "10-6",
+      "meaning": "Busy Unless Urgent"
+    },
+    {
+      "code": "10-7",
+      "meaning": "Out of Service"
+    },
+    {
+      "code": "10-8",
+      "meaning": "In Service"
+    },
+    {
+      "code": "10-9",
+      "meaning": "Repeat"
+    },
+    {
+      "code": "10-10",
+      "meaning": "Fight in Progress"
+    },
+    {
+      "code": "10-16",
+      "meaning": "Domestic"
+    },
+    {
+      "code": "10-17",
+      "meaning": "Complainant"
+    },
+    {
+      "code": "10-20",
+      "meaning": "Location"
+    },
+    {
+      "code": "10-21",
+      "meaning": "Call by Telephone"
+    },
+    {
+      "code": "10-22",
+      "meaning": "Disregard"
+    },
+    {
+      "code": "10-23",
+      "meaning": "Arrived at Scene"
+    },
+    {
+      "code": "10-27",
+      "meaning": "DL Identification"
+    },
+    {
+      "code": "10-28",
+      "meaning": "Vehicle Identification"
+    },
+    {
+      "code": "10-29",
+      "meaning": "Wanted Check"
+    },
+    {
+      "code": "10-32",
+      "meaning": "Man with a Gun"
+    },
+    {
+      "code": "10-33",
+      "meaning": "Emergency"
+    },
+    {
+      "code": "10-41",
+      "meaning": "Beginning Duty"
+    },
+    {
+      "code": "10-42",
+      "meaning": "Ending Duty"
+    },
+    {
+      "code": "10-43",
+      "meaning": "Information"
+    },
+    {
+      "code": "10-46",
+      "meaning": "Motorist Assist"
+    },
+    {
+      "code": "10-50",
+      "meaning": "Accident/Crash"
+    },
+    {
+      "code": "10-55",
+      "meaning": "Intoxicated Driver"
+    },
+    {
+      "code": "10-56",
+      "meaning": "Intoxicated Person"
+    },
+    {
+      "code": "10-59",
+      "meaning": "Escort"
+    },
+    {
+      "code": "10-60",
+      "meaning": "Squad in Vicinity"
+    },
+    {
+      "code": "10-61",
+      "meaning": "Person in Area"
+    },
+    {
+      "code": "10-76",
+      "meaning": "Enroute"
+    },
+    {
+      "code": "10-80",
+      "meaning": "Pursuit in Progress"
+    },
+    {
+      "code": "10-95",
+      "meaning": "Prisoner in Custody"
+    },
+    {
+      "code": "10-96",
+      "meaning": "Mental Subject"
+    },
+    {
+      "code": "10-99",
+      "meaning": "Wanted on Warrant(s)"
+    },
+    {
+      "code": "10-0",
+      "meaning": "Caution/Wanted"
+    },
+    {
+      "code": "10-1",
+      "meaning": "Unable to Copy"
+    },
+    {
+      "code": "10-3",
+      "meaning": "Stop Transmitting"
+    },
+    {
+      "code": "10-5",
+      "meaning": "Relay"
+    },
+    {
+      "code": "10-11",
+      "meaning": "Dog Case"
+    },
+    {
+      "code": "10-12",
+      "meaning": "Stand By"
+    },
+    {
+      "code": "10-13",
+      "meaning": "Weather/Road Report"
+    },
+    {
+      "code": "10-14",
+      "meaning": "Prowler"
+    },
+    {
+      "code": "10-15",
+      "meaning": "Civil Disturbance"
+    },
+    {
+      "code": "10-18",
+      "meaning": "Quickly"
+    },
+    {
+      "code": "10-19",
+      "meaning": "Return to..."
+    },
+    {
+      "code": "10-24",
+      "meaning": "Assignment Completed"
+    },
+    {
+      "code": "10-25",
+      "meaning": "Report in Person"
+    },
+    {
+      "code": "10-26",
+      "meaning": "Detaining Subject"
+    },
+    {
+      "code": "10-30",
+      "meaning": "Illegal Use of Radio"
+    },
+    {
+      "code": "10-31",
+      "meaning": "Crime in Progress"
+    },
+    {
+      "code": "10-34",
+      "meaning": "Riot"
+    },
+    {
+      "code": "10-35",
+      "meaning": "Major Crime Alert"
+    },
+    {
+      "code": "10-36",
+      "meaning": "Time"
+    },
+    {
+      "code": "10-37",
+      "meaning": "Suspicious Vehicle"
+    },
+    {
+      "code": "10-38",
+      "meaning": "Stop Suspicious Vehicle"
+    },
+    {
+      "code": "10-39",
+      "meaning": "Urgent, Lights/Siren"
+    },
+    {
+      "code": "10-40",
+      "meaning": "Silent Run"
+    },
+    {
+      "code": "10-44",
+      "meaning": "Leaving Area"
+    },
+    {
+      "code": "10-45",
+      "meaning": "Animal Carcass"
+    },
+    {
+      "code": "10-47",
+      "meaning": "Road Repairs"
+    },
+    {
+      "code": "10-48",
+      "meaning": "Traffic Stand, Repair"
+    },
+    {
+      "code": "10-49",
+      "meaning": "Light Out"
+    },
+    {
+      "code": "10-51",
+      "meaning": "Wrecker/Tow Needed"
+    },
+    {
+      "code": "10-52",
+      "meaning": "Ambulance Needed"
+    },
+    {
+      "code": "10-53",
+      "meaning": "Road Blocked"
+    },
+    {
+      "code": "10-54",
+      "meaning": "Door Opening"
+    },
+    {
+      "code": "10-57",
+      "meaning": "Hit and Run"
+    },
+    {
+      "code": "10-58",
+      "meaning": "Direct Traffic"
+    },
+    {
+      "code": "10-62",
+      "meaning": "Reply to Message"
+    },
+    {
+      "code": "10-63",
+      "meaning": "Written Message"
+    },
+    {
+      "code": "10-64",
+      "meaning": "Local Delivery"
+    },
+    {
+      "code": "10-65",
+      "meaning": "Net Message Assign."
+    },
+    {
+      "code": "10-66",
+      "meaning": "Message Cancellation"
+    },
+    {
+      "code": "10-67",
+      "meaning": "Clear for Message"
+    },
+    {
+      "code": "10-68",
+      "meaning": "Dispatch Information"
+    },
+    {
+      "code": "10-69",
+      "meaning": "Message Received"
+    },
+    {
+      "code": "10-70",
+      "meaning": "Fire Alarm"
+    },
+    {
+      "code": "10-71",
+      "meaning": "Nature of Fire"
+    },
+    {
+      "code": "10-72",
+      "meaning": "Progress of Fire"
+    },
+    {
+      "code": "10-73",
+      "meaning": "Smoke Report"
+    },
+    {
+      "code": "10-74",
+      "meaning": "Negative"
+    },
+    {
+      "code": "10-75",
+      "meaning": "In Contact"
+    },
+    {
+      "code": "10-77",
+      "meaning": "ETA"
+    },
+    {
+      "code": "10-78",
+      "meaning": "Need Assistance"
+    },
+    {
+      "code": "10-79",
+      "meaning": "Notify Coroner"
+    },
+    {
+      "code": "10-81",
+      "meaning": "Breathalyzer Operator"
+    },
+    {
+      "code": "10-82",
+      "meaning": "Parking Permission"
+    },
+    {
+      "code": "10-83",
+      "meaning": "School Crossing"
+    },
+    {
+      "code": "10-84",
+      "meaning": "If Meeting ETA"
+    },
+    {
+      "code": "10-85",
+      "meaning": "Delayed"
+    },
+    {
+      "code": "10-86",
+      "meaning": "Officer on Duty"
+    },
+    {
+      "code": "10-87",
+      "meaning": "Pick up Checks"
+    },
+    {
+      "code": "10-88",
+      "meaning": "Telephone Number Of"
+    },
+    {
+      "code": "10-89",
+      "meaning": "Bomb Threat"
+    },
+    {
+      "code": "10-90",
+      "meaning": "Alarm/Intrusion"
+    },
+    {
+      "code": "10-91",
+      "meaning": "Pick Up Prisoner"
+    },
+    {
+      "code": "10-92",
+      "meaning": "Parking Complaint"
+    },
+    {
+      "code": "10-93",
+      "meaning": "Blockade"
+    },
+    {
+      "code": "10-94",
+      "meaning": "Drag Racing"
+    },
+    {
+      "code": "10-97",
+      "meaning": "Radio Test"
+    },
+    {
+      "code": "10-98",
+      "meaning": "Prison/Jail Break"
+    }
+  ]
+}
