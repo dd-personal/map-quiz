@@ -2557,6 +2557,7 @@ async function switchQuiz(nextId) {
     legalRevealAll = false;
     legalSolved = false;
     resetLegalAttemptState();
+    if (legalFeedbackEl) legalFeedbackEl.textContent = "";
     renderLegal();
   }
 
