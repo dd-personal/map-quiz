@@ -24,7 +24,7 @@
   {
     "id": "940.03",
     "statute": "940.03",
-    "title": "Felony murder - underlying crime completed",
+    "title": "Felony murder",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant caused the death of another human being while committing or attempting to commit one of the specified felonies.",
     "elements": [
       "Causes Death",
@@ -121,7 +121,7 @@
   {
     "id": "940.225(1)(a)",
     "statute": "940.225(1)(a)",
-    "title": "First degree sexual assault: sexual contact or intercourse without consent causing great bodily harm or pregnancy",
+    "title": "First degree sexual assault",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent and caused pregnancy or great bodily harm to the victim as a result.",
     "elements": [
       "Sexual Contact or Sexual Intercourse",
@@ -132,7 +132,7 @@
   {
     "id": "940.225(1)(b)",
     "statute": "940.225(1)(b)",
-    "title": "First degree sexual assault: sexual contact or intercourse without consent by use or threat of a dangerous weapon",
+    "title": "First degree sexual assault: dangerous weapon",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent and did so by using or threatening to use a dangerous weapon, or an article fashioned to make the victim reasonably believe it was a dangerous weapon.",
     "elements": [
       "Sexual Contact or Sexual Intercourse",
@@ -143,7 +143,7 @@
   {
     "id": "940.225(2)(a)",
     "statute": "940.225(2)(a)",
-    "title": "Second degree sexual assault: sexual contact or intercourse without consent by use or threat of force or violence",
+    "title": "Second degree sexual assault",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent, and did so by using or threatening to use force or violence.",
     "elements": [
       "Sexual Contact or Sexual Intercourse",
@@ -154,7 +154,7 @@
   {
     "id": "940.225(2)(b)",
     "statute": "940.225(2)(b)",
-    "title": "Second degree sexual assault: sexual contact or intercourse without consent causing injury, illness, disease or impairment or a sexual or reproductive organ, or mental anguish requiring psychiatric care",
+    "title": "Second degree sexual assault: causing injury, illness, disease or impairment or a sexual or reproductive organ, or mental anguish requiring psychiatric care",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact or sexual intercourse with another person without their consent, and that the assault caused injury, illness, disease, or impairment of a sexual or reproductive organ, or caused mental anguish requiring psychiatric care for the victim.",
     "elements": [
       "Sexual Contact or Sexual Intercourse",
@@ -165,7 +165,7 @@
   {
     "id": "940.225(3)(a)",
     "statute": "940.225(3)(a)",
-    "title": "Third degree sexual assault: sexual intercourse without consent",
+    "title": "Third degree sexual assault",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual intercourse with another person without their consent.",
     "elements": [
       "Sexual Intercourse or Sexual Contact",
@@ -175,7 +175,7 @@
   {
     "id": "940.225(3m)",
     "statute": "940.225(3m)",
-    "title": "Fourth degree sexual assault: sexual contact without consent",
+    "title": "Fourth degree sexual assault",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant had sexual contact with another person without that person’s consent.",
     "elements": [
       "Sexual Contact",
@@ -402,7 +402,7 @@
     "elements": [
       "Intentional Act",
       "Personal Identifying Information or Personal Identification Document",
-      "Without Authorization or Consent",
+      "Without Consent",
       "Representation",
       "Purpose"
     ]
@@ -410,7 +410,7 @@
   {
     "id": "943.231(1)",
     "statute": "943.231(1)",
-    "title": "Carjacking [taking a vehicle by use or threat of force]",
+    "title": "Carjacking",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant, while possessing a dangerous weapon, intentionally took a vehicle without the owner’s consent. The defendant must have used or threatened to use force or the weapon against another person in the process of taking the vehicle.",
     "elements": [
       "Prohibited Conduct",
@@ -447,18 +447,6 @@
     "id": "943.32(1)(a)",
     "statute": "943.32(1)(a)",
     "title": "Robbery by force",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with intent to steal, took property from the person or presence of the owner by using force to overcome resistance or compel acquiescence.",
-    "elements": [
-      "Taking Property",
-      "Use of Force",
-      "Purpose of Force",
-      "Intent to Steal"
-    ]
-  },
-  {
-    "id": "943.32(1)(b)",
-    "statute": "943.32(1)(b)",
-    "title": "Robbery by threat",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant, with intent to steal, took property from the person or presence of the owner by using force to overcome resistance or compel acquiescence.",
     "elements": [
       "Taking Property",
@@ -621,17 +609,6 @@
     ]
   },
   {
-    "id": "946.65",
-    "statute": "946.65",
-    "title": "Obstructing justice",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person who, for a consideration, knowingly gave false information to an officer of any court with the intent to influence the officer in the performance of their official functions.",
-    "elements": [
-      "Action",
-      "Intent",
-      "Consideration"
-    ]
-  },
-  {
     "id": "947.012(1)(a)",
     "statute": "947.012(1)(a)",
     "title": "Unlawful use of telephone",
@@ -728,7 +705,7 @@
   {
     "id": "346.57(2)",
     "statute": "346.57(2)",
-    "title": "Speeding57(2) or an ordinance adopting § 346.57(2)",
+    "title": "Speeding: Reasonable and Prudent",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving a vehicle at a speed greater than what is reasonable and prudent under the conditions and with regard to the actual and potential hazards existing at the time. The speed of the vehicle must be controlled as necessary to avoid colliding with any object, person, vehicle, or other conveyance on or entering the highway, and the defendant must drive in compliance with legal requirements and using due care.",
     "elements": [
       "Driving a Vehicle",
@@ -738,7 +715,7 @@
   {
     "id": "346.57(5)",
     "statute": "346.57(5)",
-    "title": "Speeding57(5) or an ordinance adopting § 346.57(5)",
+    "title": "Speeding: Posted Limit",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving a vehicle, that the speed limit was established pursuant to law by state or local authorities, that the speed limit was indicated by official signs, and that the defendant drove in excess of the posted speed limit.",
     "elements": [
       "Driving a Vehicle",
@@ -750,7 +727,7 @@
   {
     "id": "346.62(2)",
     "statute": "346.62(2)",
-    "title": "Reckless driving: endangering safety (criminal offense)",
+    "title": "Reckless driving: endangering safety",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant was operating a vehicle in a negligent manner, and that this negligent operation endangered the safety of any person or property.",
     "elements": [
       "Driving a Vehicle",
@@ -761,7 +738,7 @@
   {
     "id": "346.63(1)(a)",
     "statute": "346.63(1)(a)",
-    "title": "Operating a motor vehicle while under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which renders him or her incapable of safely driving.",
+    "title": "Operating a motor vehicle while under the influence",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant was a person driving or operating a motor vehicle while under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which renders him or her incapable of safely driving.",
     "elements": [
       "Operation of a Motor Vehicle",
@@ -771,7 +748,7 @@
   {
     "id": "346.63(1)(a) and § 346.65(2)(f)1",
     "statute": "346.63(1)(a) and § 346.65(2)(f)1",
-    "title": "Operating a motor vehicle while under the influence of an intoxicant with a child under 16 years of age in the vehicle",
+    "title": "Operating a motor vehicle while under the influence with a child under 16 years of age in the vehicle",
     "definition": "To be guilty of this offense, the prosecution must prove that the defendant was driving or operating a motor vehicle while under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which renders him or her incapable of safely driving. Additionally, if there was a minor passenger under 16 years of age in the motor vehicle at the time of the violation, the defendant shall be fined not less than $350 nor more than $1,100 and imprisoned for not less than 5 days nor more than 6 months.",
     "elements": [
       "Operation of a Motor Vehicle",
@@ -808,17 +785,6 @@
       "Operation of a Motor Vehicle",
       "Prohibited Alcohol Concentration",
       "Prior Convictions, Suspensions, or Revocations"
-    ]
-  },
-  {
-    "id": "346.63(2)(a)1",
-    "statute": "346.63(2)(a)1",
-    "title": "Operating a vehicle while under the influence of an intoxicant and causing injury",
-    "definition": "To be guilty of this offense, the prosecution must prove that the defendant was operating a vehicle, caused injury to another person by operating the vehicle, and was under the influence of an intoxicant, a controlled substance, a controlled substance analog, or any combination of these, or under the influence of any other drug or the combined influence of an intoxicant and any other drug to a degree which rendered him or her incapable of safely driving.",
-    "elements": [
-      "Operation of a Vehicle",
-      "Causing Injury",
-      "Under the Influence"
     ]
   },
   {

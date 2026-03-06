@@ -54,11 +54,11 @@
     },
     {
       "code": "10-27",
-      "meaning": "DL Identification"
+      "meaning": "DL Id"
     },
     {
       "code": "10-28",
-      "meaning": "Vehicle Identification"
+      "meaning": "Vehicle Id"
     },
     {
       "code": "10-29",
@@ -94,11 +94,11 @@
     },
     {
       "code": "10-55",
-      "meaning": "Intoxicated Driver"
+      "meaning": "IntoxDriver"
     },
     {
       "code": "10-56",
-      "meaning": "Intoxicated Person"
+      "meaning": "Intox Person"
     },
     {
       "code": "10-59",
